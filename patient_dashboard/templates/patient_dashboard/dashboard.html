@@ -1,0 +1,983 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .patient-dashboard-page {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        min-height: 100vh;
+        background: #f8fafc;
+    }
+    .patient-shell {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+        background: #f8fafc;
+        overflow: hidden;
+    }
+    .patient-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+        flex-shrink: 0;
+        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+        color: #e2e8f0;
+        padding: 1.5rem 1rem 1rem;
+        display: flex;
+        flex-direction: column;
+        z-index: 10;
+    }
+    .patient-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        padding: 0 0 0.8rem;
+        font-size: 1.35rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+        margin-bottom: 0.8rem;
+    }
+    .brand-mark {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        display: grid;
+        place-items: center;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    .patient-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        margin-top: 0.5rem;
+    }
+    .patient-nav .nav-link {
+        color: rgba(226, 232, 240, 0.8);
+        border-radius: 10px;
+        padding: 0.7rem 0.8rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.2s ease;
+        font-size: 0.96rem;
+    }
+    .patient-nav .nav-link:hover,
+    .patient-nav .nav-link.active {
+        background: rgba(59, 130, 246, 0.18);
+        color: #fff;
+    }
+    .patient-btn {
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 0.7rem 1.1rem;
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+        transition: all 0.2s ease;
+    }
+    .patient-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 22px rgba(37, 99, 235, 0.18);
+    }
+    .patient-btn-secondary {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 0.68rem 1rem;
+        border: 1px solid rgba(148, 163, 184, 0.35);
+        background: #fff;
+        color: #1e293b;
+    }
+    .patient-btn-secondary:hover {
+        background: #f8fafc;
+        border-color: rgba(148, 163, 184, 0.6);
+    }
+    .patient-btn-danger {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 0.68rem 1rem;
+    }
+    .patient-sidebar-footer {
+        margin-top: auto;
+        border-top: 1px solid rgba(148, 163, 184, 0.25);
+        padding-top: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+    .patient-user {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        min-width: 0;
+    }
+    .patient-user-badge {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: rgba(59, 130, 246, 0.25);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+    }
+    .patient-user small {
+        display: block;
+        color: rgba(226, 232, 240, 0.75);
+    }
+    .patient-main {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow-x: hidden;
+        background: #f8fafc;
+        padding: 0 1.15rem 1.6rem 1.15rem;
+        margin-left: 260px;
+        min-height: 100vh;
+    }
+    .patient-topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.1rem;
+        padding: 0;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    }
+    .patient-greeting h2 {
+        margin: 0;
+        font-size: clamp(1.7rem, 1.8vw, 2.1rem);
+        letter-spacing: -0.05em;
+        font-weight: 800;
+    }
+    .subtle {
+        color: #64748b;
+        margin: 0;
+    }
+    .section-card {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        padding: 0.9rem 1rem;
+    }
+    .section-card h5 {
+        font-weight: 700;
+        margin-bottom: 0.8rem;
+    }
+    .stat-card {
+        background: #fff;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 12px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.03);
+        padding: 0.85rem 0.9rem;
+        height: 100%;
+    }
+    .stat-label {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-bottom: 0.45rem;
+    }
+    .stat-value {
+        font-size: clamp(1.8rem, 2vw, 2.2rem);
+        font-weight: 800;
+        letter-spacing: -0.05em;
+        margin: 0;
+    }
+    .next-appointment-card {
+        background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
+        border: 1px solid rgba(59, 130, 246, 0.12);
+        border-radius: 16px;
+        padding: 1rem 1.1rem;
+    }
+    .empty-state-card {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 1px dashed rgba(148, 163, 184, 0.5);
+        border-radius: 16px;
+        padding: 1.1rem 1.2rem;
+        color: #475569;
+    }
+    .empty-state-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 18px;
+        display: grid;
+        place-items: center;
+        font-size: 1.6rem;
+        color: #2563eb;
+        background: rgba(59, 130, 246, 0.1);
+    }
+    .patient-metric-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1rem;
+    }
+    .patient-bottom-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.95fr);
+        gap: 1rem;
+        align-items: start;
+    }
+    .quick-action-card {
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 14px;
+        background: #fff;
+        box-shadow: 0 6px 16px rgba(15, 23, 42, 0.03);
+        padding: 0.9rem;
+        height: 100%;
+    }
+    .quick-action-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+        font-size: 1.3rem;
+        margin-bottom: 0.8rem;
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.38rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+    }
+    .bg-status-pending { background: #fff3cd; color: #7a5600; }
+    .bg-status-confirmed { background: #dbeafe; color: #1d4ed8; }
+    .bg-status-completed { background: #dcfce7; color: #166534; }
+    .bg-status-cancelled { background: #fee2e2; color: #991b1b; }
+    .bg-status-no-show { background: #fce7f3; color: #9d174d; }
+    .doctor-card {
+        border: 1px solid rgba(148, 163, 184, 0.15);
+        border-radius: 18px;
+        padding: 1rem;
+        background: #fff;
+        box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+        height: 100%;
+    }
+    .doctor-card-clickable:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 28px rgba(15, 23, 42, 0.08);
+    }
+    .modal-backdrop.show {
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+    }
+    .doctor-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #bfdbfe, #dbeafe);
+        display: grid;
+        place-items: center;
+        font-weight: 700;
+        color: #1e3a8a;
+        margin-bottom: 0.75rem;
+        object-fit: cover;
+    }
+    .slot-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .slot-pill {
+        border: 1px solid #cbd5e1;
+        background: #fff;
+        color: #0f172a;
+        padding: 0.5rem 0.8rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .slot-pill:hover {
+        border-color: #93c5fd;
+        color: #1d4ed8;
+        background: #f8fbff;
+    }
+    .slot-pill.selected {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: #1d4ed8;
+        box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.12);
+    }
+    .empty-state-card {
+        background: #f8fafc;
+        border: 1px dashed rgba(148, 163, 184, 0.5);
+        border-radius: 16px;
+        color: #475569;
+    }
+    @media (max-width: 991px) {
+        .patient-shell {
+            flex-direction: column;
+        }
+        .patient-sidebar {
+            width: 100%;
+        }
+    }
+    @media (max-width: 640px) {
+        .patient-main {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="patient-dashboard-page">
+    <div class="patient-shell">
+        <aside class="patient-sidebar">
+            <div class="patient-brand">
+                <div class="brand-mark">H</div>
+                <span>FSUU Hospital</span>
+            </div>
+
+            <nav class="patient-nav nav nav-pills flex-column" role="tablist" aria-label="Patient dashboard sections">
+                <button class="nav-link active" type="button" data-tab-target="#home-tab">
+                    <i class="bi bi-house-door me-2"></i> Dashboard Home
+                </button>
+                <button class="nav-link" type="button" data-tab-target="#doctors-tab">
+                    <i class="bi bi-search me-2"></i> Find a Doctor
+                </button>
+                <button class="nav-link" type="button" data-tab-target="#appointments-tab">
+                    <i class="bi bi-calendar-event me-2"></i> My Appointments
+                </button>
+                <button class="nav-link" type="button" data-tab-target="#profile-tab">
+                    <i class="bi bi-person me-2"></i> My Profile
+                </button>
+                <a class="nav-link" href="{% url 'messages_page' %}">
+                    <i class="bi bi-chat-dots me-2"></i> Messages
+                </a>
+            </nav>
+
+            <div class="patient-sidebar-footer">
+                <div class="patient-user">
+                    {% if request.user.photo %}
+                        <img src="{{ request.user.photo.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="patient-user-badge" style="width: 36px; height: 36px; object-fit: cover;">
+                    {% else %}
+                        <div class="patient-user-badge">{{ request.user.first_name|default:request.user.username|slice:':1'|upper }}</div>
+                    {% endif %}
+                    <div>
+                        <strong>{{ request.user.first_name|default:request.user.username }}</strong>
+                        <small>Patient</small>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-outline-light" type="button" data-theme-toggle title="Toggle light/dark mode" aria-label="Toggle light/dark mode"><i class="bi bi-moon-stars"></i></button>
+            </div>
+        </aside>
+
+        <main class="patient-main">
+            <div class="patient-topbar">
+                <div class="patient-greeting">
+                    <h2>Hello, {{ request.user.first_name|default:request.user.username }}!</h2>
+                    <p class="subtle">Manage your health appointments easily.</p>
+                </div>
+                <button class="btn btn-primary patient-btn" type="button" data-tab-target="#doctors-tab">Book Appointment</button>
+            </div>
+
+            <div class="tab-content">
+                <section id="home-tab" class="tab-pane fade show active" role="tabpanel">
+                    <div class="patient-metric-grid mb-3">
+                        <div class="stat-card">
+                            <div class="stat-label">Upcoming visits</div>
+                            <p class="stat-value">{{ upcoming_visits }}</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Completed visits</div>
+                            <p class="stat-value">{{ completed_visits }}</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Cancelled bookings</div>
+                            <p class="stat-value">{{ cancelled_visits }}</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Next appointment</div>
+                            <p class="stat-value">{% if upcoming_appointment %}{{ upcoming_appointment.date|date:'M d' }}{% else %}—{% endif %}</p>
+                        </div>
+                    </div>
+
+                    <div class="patient-bottom-grid mb-3">
+                        <div>
+                            {% if upcoming_appointment %}
+                                <h5 class="mb-3">Upcoming appointment</h5>
+                                <div class="next-appointment-card d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        {% if upcoming_appointment.doctor.photo %}
+                                            <img src="{{ upcoming_appointment.doctor.photo.url }}" alt="{{ upcoming_appointment.doctor.name }}" class="doctor-avatar" style="width: 56px; height: 56px; margin-bottom: 0; object-fit: cover;">
+                                        {% else %}
+                                            <div class="doctor-avatar" style="width: 56px; height: 56px; margin-bottom: 0;">{{ upcoming_appointment.doctor.name|slice:':1' }}</div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="fw-bold fs-5">{{ upcoming_appointment.doctor.name }}</div>
+                                            <div class="text-muted">{{ upcoming_appointment.doctor.specialty }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-semibold">{{ upcoming_appointment.date }} at {{ upcoming_appointment.time }}</div>
+                                        <div class="text-muted">Clinic: FSUU Hospital</div>
+                                    </div>
+                                    <div class="d-flex gap-2 flex-wrap">
+                                        <a class="btn btn-outline-primary" href="{% url 'reschedule_appointment' upcoming_appointment.id %}">Reschedule</a>
+                                        <a class="btn btn-outline-danger" href="{% url 'cancel_appointment' upcoming_appointment.id %}" onclick="return confirm('Cancel this appointment?')">Cancel</a>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="empty-state-card d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="empty-state-icon"><i class="bi bi-calendar2-week"></i></div>
+                                        <div>
+                                            <h5 class="mb-1">No upcoming visits scheduled. Need to see a specialist?</h5>
+                                            <p class="mb-0 text-muted">Your upcoming appointments will appear here once scheduled.</p>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary patient-btn" type="button" data-tab-target="#doctors-tab">Find a Doctor</button>
+                                </div>
+                            {% endif %}
+
+                            <div class="section-card mt-3">
+                                <h5>Recent completed appointments</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Doctor</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in appointments|slice:':4' %}
+                                                {% if item.status == 'COMPLETED' %}
+                                                <tr>
+                                                    <td>{{ item.doctor.name }}</td>
+                                                    <td>{{ item.date }}</td>
+                                                    <td><span class="status-badge bg-status-completed">Completed</span></td>
+                                                </tr>
+                                                {% endif %}
+                                            {% empty %}
+                                                <tr><td colspan="3" class="text-muted text-center">No completed appointments yet.</td></tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="section-card">
+                            <h5>Quick actions</h5>
+                            <div class="d-grid gap-3">
+                                <div class="quick-action-card">
+                                    <div class="quick-action-icon"><i class="bi bi-calendar-plus"></i></div>
+                                    <h6 class="fw-bold mb-1">Book a Consultation</h6>
+                                    <p class="text-muted small mb-3">Browse doctors and pick a time that works for you.</p>
+                                    <button class="btn btn-primary w-100 patient-btn" type="button" data-tab-target="#doctors-tab">Book now</button>
+                                </div>
+                                <div class="quick-action-card">
+                                    <div class="quick-action-icon"><i class="bi bi-chat-dots"></i></div>
+                                    <h6 class="fw-bold mb-1">Message Doctor</h6>
+                                    <p class="text-muted small mb-3">Send a quick question to your assigned medical staff.</p>
+                                    <a class="btn btn-outline-primary w-100" href="{% url 'messages_page' %}">Open messages</a>
+                                </div>
+                                <div class="quick-action-card">
+                                    <div class="quick-action-icon"><i class="bi bi-person"></i></div>
+                                    <h6 class="fw-bold mb-1">Manage Profile</h6>
+                                    <p class="text-muted small mb-3">Update personal details and your contact information.</p>
+                                    <button class="btn btn-outline-secondary w-100" type="button" data-tab-target="#profile-tab">Manage profile</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="doctors-tab" class="tab-pane fade" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-12 col-lg-4">
+                            <div class="section-card h-100">
+                                <h5>Find a Doctor</h5>
+                                <form method="get" class="row g-2">
+                                    {{ form.as_p }}
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary w-100 patient-btn">Search</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-8">
+                            <div class="section-card h-100">
+                                <h5>Doctor directory</h5>
+                                <div class="row g-3">
+                                    {% for doctor in doctors %}
+                                    <div class="col-12 col-md-6">
+                                        <div class="doctor-card doctor-card-clickable" data-doctor-id="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-bio="{{ doctor.bio|default:'Experienced specialist devoted to patient care.'|escapejs }}" data-doctor-sex="{{ doctor.get_sex_display }}" style="cursor:pointer;">
+                                            <div class="doctor-avatar">{{ doctor.name|slice:':1' }}</div>
+                                            <div class="fw-bold fs-5">{{ doctor.name }}</div>
+                                            <div class="text-muted mb-2">{{ doctor.specialty }}</div>
+                                            <div class="small text-muted mb-3">{{ doctor.bio|default:'Experienced specialist devoted to patient care.' }}</div>
+                                            <div class="d-flex justify-content-between align-items-center gap-2">
+                                                <span class="badge bg-primary-subtle text-primary">Available today</span>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-outline-primary btn-sm patient-btn-secondary" data-view-doctor="{{ doctor.id }}">View details</button>
+                                                    <button type="button" class="btn btn-primary btn-sm patient-btn" data-book-doctor="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}">
+                                                        <i class="bi bi-calendar2-check me-1"></i>Book
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="col-12 text-muted">No doctors match your filter.</div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <section id="appointments-tab" class="tab-pane fade" role="tabpanel">
+                    <div class="section-card">
+                        <h5>My appointments</h5>
+                        <div class="table-responsive">
+                            <table class="table table-striped align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor</th>
+                                        <th>Specialty</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for appointment in appointments %}
+                                    <tr>
+                                        <td>{{ appointment.doctor.name }}</td>
+                                        <td>{{ appointment.doctor.specialty }}</td>
+                                        <td>{{ appointment.date }}</td>
+                                        <td>{{ appointment.time }}</td>
+                                        <td>
+                                            {% if appointment.status == 'PENDING' %}
+                                                <span class="status-badge bg-status-pending">Pending</span>
+                                            {% elif appointment.status == 'CONFIRMED' %}
+                                                <span class="status-badge bg-status-confirmed">Confirmed</span>
+                                            {% elif appointment.status == 'COMPLETED' %}
+                                                <span class="status-badge bg-status-completed">Completed</span>
+                                            {% elif appointment.status == 'CANCELLED' %}
+                                                <span class="status-badge bg-status-cancelled">Cancelled</span>
+                                            {% else %}
+                                                <span class="status-badge bg-status-no-show">{{ appointment.get_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if appointment.status == 'COMPLETED' or appointment.status == 'CANCELLED' or appointment.status == 'NO_SHOW' %}
+                                                <span class="text-muted small">No actions</span>
+                                            {% else %}
+                                                <div class="d-flex gap-2">
+                                                    <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-sm btn-outline-primary">Reschedule</a>
+                                                    <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this appointment?')">Cancel</a>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr><td colspan="6" class="text-center text-muted">You have no appointments yet.</td></tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="profile-tab" class="tab-pane fade" role="tabpanel">
+                    <div class="section-card">
+                        <h5>My profile</h5>
+                        <form method="post" action="{% url 'profile_update' %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="mb-3 p-3 border rounded bg-light">
+                                <label class="form-label fw-semibold">Profile photo</label>
+                                <div class="d-flex align-items-center gap-3 flex-wrap">
+                                    {% if request.user.photo %}
+                                        <img src="{{ request.user.photo.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}" class="rounded-circle border" style="width: 64px; height: 64px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold" style="width: 64px; height: 64px;">{{ request.user.first_name|default:request.user.username|slice:':1'|upper }}</div>
+                                    {% endif %}
+                                    <input type="file" name="photo" accept="image/*" class="form-control" aria-label="Upload profile photo">
+                                </div>
+                            </div>
+                            {{ profile_form.as_p }}
+                            <button type="submit" class="btn btn-primary">Save profile</button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div class="modal fade" id="doctorDetailModal" tabindex="-1" aria-labelledby="doctorDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-2">
+                <h5 class="modal-title fw-bold" id="doctorDetailModalLabel">Doctor details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-2">
+                <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-4">
+                    <div class="doctor-avatar" id="detailDoctorAvatar" style="width: 64px; height: 64px; font-size: 1.4rem;">D</div>
+                    <div>
+                        <div class="fw-bold fs-4" id="detailDoctorName">Doctor Name</div>
+                        <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                            <span class="badge bg-primary-subtle text-primary" id="detailDoctorSpecialty">Specialty</span>
+                            <span class="badge bg-light text-dark" id="detailDoctorSex">Sex</span>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted mb-3" id="detailDoctorBio">Bio</p>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <div class="text-muted small">Available for consultation booking</div>
+                    <button type="button" class="btn btn-primary patient-btn" id="detailBookButton">Book appointment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-2">
+                <h5 class="modal-title fw-bold" id="bookingModalLabel">Book Appointment with Dr. <span id="modalDoctorName">Doctor</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-2">
+                <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-4">
+                    <div class="doctor-avatar" id="modalDoctorAvatar" style="width: 56px; height: 56px; font-size: 1.2rem;">D</div>
+                    <div>
+                        <div class="fw-bold fs-5" id="modalDoctorNameInline">Doctor Name</div>
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <span class="badge bg-primary-subtle text-primary" id="modalDoctorSpecialty">Specialty</span>
+                            <span class="text-muted small">30-minute consultation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <label class="form-label fw-semibold mb-0">Select a date</label>
+                    </div>
+                    <div id="dateSelector" class="d-flex flex-wrap gap-2"></div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <label class="form-label fw-semibold mb-0">Available slots</label>
+                    </div>
+                    <div id="slotContainer"></div>
+                </div>
+
+                <form method="post" action="{% url 'book_appointment' %}" id="bookingForm">
+                    {% csrf_token %}
+                    <input type="hidden" name="doctor" id="modalDoctorId">
+                    <input type="hidden" name="date" id="modalSelectedDate">
+                    <input type="hidden" name="time" id="modalSelectedTime">
+
+                    <div class="mb-3">
+                        <label for="bookingNotes" class="form-label fw-semibold">Reason for visit (Optional)</label>
+                        <textarea id="bookingNotes" name="notes" class="form-control" rows="4" placeholder="e.g., Routine checkup, skin rash consultation..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-3">
+                        <button type="submit" class="btn btn-primary btn-lg patient-btn" id="bookSlotButton" disabled>
+                            <span class="button-label">Book appointment</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        function activatePatientTab(targetId) {
+            const panels = document.querySelectorAll('.tab-pane');
+            const navButtons = document.querySelectorAll('[data-tab-target]');
+
+            panels.forEach(function (panel) {
+                panel.classList.remove('active', 'show');
+                panel.style.display = 'none';
+            });
+
+            navButtons.forEach(function (button) {
+                button.classList.remove('active');
+            });
+
+            const targetPanel = document.getElementById(targetId.replace('#', ''));
+            if (targetPanel) {
+                targetPanel.classList.add('active', 'show');
+                targetPanel.style.display = 'block';
+            }
+
+            const targetNav = document.querySelector('[data-tab-target="' + targetId + '"]');
+            if (targetNav) {
+                targetNav.classList.add('active');
+            }
+        }
+
+        document.querySelectorAll('[data-tab-target]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-tab-target');
+                if (targetId) {
+                    activatePatientTab(targetId);
+                }
+            });
+        });
+
+        const bookingModal = document.getElementById('bookingModal');
+        const doctorDetailModal = document.getElementById('doctorDetailModal');
+        const detailDoctorName = document.getElementById('detailDoctorName');
+        const detailDoctorSpecialty = document.getElementById('detailDoctorSpecialty');
+        const detailDoctorAvatar = document.getElementById('detailDoctorAvatar');
+        const detailDoctorBio = document.getElementById('detailDoctorBio');
+        const detailDoctorSex = document.getElementById('detailDoctorSex');
+        const detailBookButton = document.getElementById('detailBookButton');
+        const modalDoctorName = document.getElementById('modalDoctorName');
+        const modalDoctorNameInline = document.getElementById('modalDoctorNameInline');
+        const modalDoctorSpecialty = document.getElementById('modalDoctorSpecialty');
+        const modalDoctorAvatar = document.getElementById('modalDoctorAvatar');
+        const modalDoctorId = document.getElementById('modalDoctorId');
+        const modalSelectedDate = document.getElementById('modalSelectedDate');
+        const modalSelectedTime = document.getElementById('modalSelectedTime');
+        const dateSelector = document.getElementById('dateSelector');
+        const slotContainer = document.getElementById('slotContainer');
+        const bookingForm = document.getElementById('bookingForm');
+        const bookSlotButton = document.getElementById('bookSlotButton');
+
+        let activeDoctorId = null;
+        let activeDate = null;
+        let activeSlot = null;
+        let currentModal = null;
+        let currentDetailModal = null;
+
+        function openDoctorDetails(doctorId, doctorName, doctorSpecialty, doctorBio, doctorSex) {
+            activeDoctorId = doctorId;
+            detailDoctorName.textContent = doctorName;
+            detailDoctorSpecialty.textContent = doctorSpecialty;
+            detailDoctorAvatar.textContent = doctorName.charAt(0).toUpperCase();
+            detailDoctorBio.textContent = doctorBio || 'Experienced specialist devoted to patient care.';
+            detailDoctorSex.textContent = doctorSex || 'Not specified';
+            detailBookButton.onclick = function () {
+                if (currentDetailModal) {
+                    currentDetailModal.hide();
+                }
+                openBookingModal(doctorId, doctorName, doctorSpecialty);
+            };
+            if (!currentDetailModal) {
+                currentDetailModal = new bootstrap.Modal(doctorDetailModal);
+            }
+            currentDetailModal.show();
+        }
+
+        function openBookingModal(doctorId, doctorName, doctorSpecialty) {
+            activeDoctorId = doctorId;
+            activeSlot = null;
+            modalDoctorName.textContent = doctorName.replace('Dr. ', '');
+            modalDoctorNameInline.textContent = doctorName;
+            modalDoctorSpecialty.textContent = doctorSpecialty;
+            modalDoctorAvatar.textContent = doctorName.charAt(0).toUpperCase();
+            modalDoctorId.value = doctorId;
+            modalSelectedDate.value = '';
+            modalSelectedTime.value = '';
+            bookSlotButton.disabled = true;
+
+            const label = bookSlotButton.querySelector('.button-label');
+            label.textContent = 'Book appointment';
+
+            if (!currentModal) {
+                currentModal = new bootstrap.Modal(bookingModal);
+            }
+            currentModal.show();
+
+            const today = new Date();
+            const dates = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                dates.push(date);
+            }
+
+            renderDateOptions(dates, dates[0]);
+            loadSlotsForDate(doctorId, toISODate(dates[0]));
+        }
+
+        function renderDateOptions(dates, selectedDateValue) {
+            dateSelector.innerHTML = '';
+            dates.forEach((date) => {
+                const value = toISODate(date);
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-sm ' + (value === toISODate(selectedDateValue) ? 'btn-primary' : 'btn-outline-primary');
+                button.textContent = formatDateChip(date);
+                button.addEventListener('click', function () {
+                    renderDateOptions(dates, date);
+                    activeDate = value;
+                    loadSlotsForDate(activeDoctorId, value);
+                });
+                dateSelector.appendChild(button);
+            });
+        }
+
+        function toISODate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return year + '-' + month + '-' + day;
+        }
+
+        function formatDateChip(date) {
+            const dayLabel = date.toLocaleDateString('en-US', { weekday: 'short' });
+            const dateLabel = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            return dayLabel + ' ' + dateLabel;
+        }
+
+        async function loadSlotsForDate(doctorId, dateValue) {
+            if (!doctorId || !dateValue) return;
+            activeDate = dateValue;
+            modalSelectedDate.value = dateValue;
+            modalSelectedTime.value = '';
+            activeSlot = null;
+            bookSlotButton.disabled = true;
+            slotContainer.innerHTML = '<div class="text-center py-4 text-muted"><div class="spinner-border spinner-border-sm me-2"></div>Loading available slots...</div>';
+
+            try {
+                const response = await fetch('{% url "doctor_slots" %}?doctor_id=' + encodeURIComponent(doctorId) + '&date=' + encodeURIComponent(dateValue));
+                const data = await response.json();
+
+                if (!data.slots || data.slots.length === 0) {
+                    slotContainer.innerHTML = '<div class="empty-state-card text-center p-4"><div class="fs-3 mb-2">📅</div><div class="fw-semibold">No available slots for this date. Please select another date.</div></div>';
+                    return;
+                }
+
+                renderSlots(data.slots);
+            } catch (error) {
+                slotContainer.innerHTML = '<div class="empty-state-card text-center p-4"><div class="fs-3 mb-2">⚠️</div><div class="fw-semibold">Unable to load slots right now. Please try another date.</div></div>';
+            }
+        }
+
+        function renderSlots(slots) {
+            slotContainer.innerHTML = '';
+            const morning = [];
+            const afternoon = [];
+
+            slots.forEach(function (value) {
+                const [hour, minute] = value.split(':').map(Number);
+                const slotItem = { value: value, label: value };
+                if (hour < 12) {
+                    morning.push(slotItem);
+                } else {
+                    afternoon.push(slotItem);
+                }
+            });
+
+            const groupOrder = [
+                { title: 'Morning', items: morning },
+                { title: 'Afternoon', items: afternoon }
+            ];
+
+            groupOrder.forEach(function (group) {
+                if (group.items.length === 0) return;
+
+                const groupWrap = document.createElement('div');
+                groupWrap.className = 'mb-3';
+
+                const title = document.createElement('div');
+                title.className = 'text-muted small fw-semibold mb-2';
+                title.textContent = group.title;
+                groupWrap.appendChild(title);
+
+                const grid = document.createElement('div');
+                grid.className = 'd-flex flex-wrap gap-2';
+
+                group.items.forEach(function (slot) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'btn btn-sm btn-outline-primary slot-pill';
+                    button.textContent = slot.label;
+                    button.dataset.time = slot.value;
+                    button.addEventListener('click', function () {
+                        const allPills = slotContainer.querySelectorAll('.slot-pill');
+                        allPills.forEach(function (pill) {
+                            pill.classList.remove('btn-primary');
+                            pill.classList.add('btn-outline-primary');
+                        });
+                        this.classList.remove('btn-outline-primary');
+                        this.classList.add('btn-primary');
+                        activeSlot = slot.value;
+                        modalSelectedTime.value = slot.value;
+                        bookSlotButton.disabled = false;
+                    });
+                    grid.appendChild(button);
+                });
+
+                groupWrap.appendChild(grid);
+                slotContainer.appendChild(groupWrap);
+            });
+        }
+
+        document.querySelectorAll('[data-view-doctor]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                const card = button.closest('.doctor-card-clickable');
+                if (!card) return;
+                openDoctorDetails(
+                    card.getAttribute('data-doctor-id'),
+                    card.getAttribute('data-doctor-name'),
+                    card.getAttribute('data-doctor-specialty'),
+                    card.getAttribute('data-doctor-bio'),
+                    card.getAttribute('data-doctor-sex')
+                );
+            });
+        });
+
+        document.querySelectorAll('[data-book-doctor]').forEach(function (button) {
+            button.addEventListener('click', function (event) {
+                event.stopPropagation();
+                openBookingModal(
+                    this.getAttribute('data-book-doctor'),
+                    this.getAttribute('data-doctor-name'),
+                    this.getAttribute('data-doctor-specialty')
+                );
+            });
+        });
+
+        document.querySelectorAll('.doctor-card-clickable').forEach(function (card) {
+            card.addEventListener('click', function () {
+                openDoctorDetails(
+                    this.getAttribute('data-doctor-id'),
+                    this.getAttribute('data-doctor-name'),
+                    this.getAttribute('data-doctor-specialty'),
+                    this.getAttribute('data-doctor-bio'),
+                    this.getAttribute('data-doctor-sex')
+                );
+            });
+        });
+
+        bookingForm.addEventListener('submit', function () {
+            const label = bookSlotButton.querySelector('.button-label');
+            if (!activeSlot) {
+                return false;
+            }
+            bookSlotButton.disabled = true;
+            label.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Booking...';
+        });
+    });
+</script>
+{% endblock %}

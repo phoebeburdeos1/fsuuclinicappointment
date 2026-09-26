@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FSUU Hospital{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d6efd;
+            --primary-dark: #0b57d0;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --muted: #6c757d;
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+        :root {
+            --bg: #f8fafc;
+            --bg-alt: #f3f7fb;
+            --panel: rgba(255,255,255,0.96);
+            --panel-solid: #ffffff;
+            --card: #ffffff;
+            --card-alt: #f8fafc;
+            --text: #1f2a37;
+            --text-strong: #0f172a;
+            --muted: #64748b;
+            --border: rgba(148, 163, 184, 0.18);
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            --sidebar-top: #1e293b;
+            --sidebar-bottom: #0f172a;
+            --sidebar-text: #e2e8f0;
+            --sidebar-soft: rgba(148, 163, 184, 0.18);
+            --accent: #0d6efd;
+            --accent-strong: #2563eb;
+            --bubble-me: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
+            --bubble-theirs: #f1f5f9;
+        }
+        body[data-theme="dark"] {
+            --bg: #0b1220;
+            --bg-alt: #101a2d;
+            --panel: rgba(15, 23, 42, 0.96);
+            --panel-solid: #111827;
+            --card: #111827;
+            --card-alt: #0f172a;
+            --text: #e5edf8;
+            --text-strong: #f8fafc;
+            --muted: #a5b4c8;
+            --border: rgba(148, 163, 184, 0.22);
+            --shadow: 0 18px 40px rgba(2, 6, 23, 0.5);
+            --sidebar-top: #0f172a;
+            --sidebar-bottom: #020817;
+            --sidebar-text: #e2e8f0;
+            --sidebar-soft: rgba(148, 163, 184, 0.15);
+            --accent: #60a5fa;
+            --accent-strong: #93c5fd;
+            --bubble-me: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+            --bubble-theirs: #162235;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-alt) 100%);
+            color: var(--text);
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+        .navbar {
+            background: linear-gradient(90deg, #0d6efd 0%, #1a73e8 100%);
+            box-shadow: 0 10px 30px rgba(13, 110, 253, 0.18);
+            padding: 0.9rem 0;
+        }
+        .navbar-brand {
+            font-size: 1.6rem;
+            letter-spacing: -0.04em;
+        }
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            color: #fff !important;
+        }
+        .card {
+            border: none;
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            background: var(--card-bg);
+        }
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        .btn-outline-light:hover {
+            background: rgba(255,255,255,0.12);
+        }
+        .hero-card {
+            background: rgba(255,255,255,0.86);
+            backdrop-filter: blur(10px);
+        }
+        .section-title {
+            font-size: clamp(2rem, 3vw, 2.7rem);
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+        .muted-text { color: var(--muted); }
+
+        .login-card {
+            border-radius: 24px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+            background: rgba(255,255,255,0.96);
+        }
+        .login-badge {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #dfeeff, #cfe1ff);
+            color: var(--primary);
+            display: grid;
+            place-items: center;
+            font-size: 1.8rem;
+            box-shadow: inset 0 0 0 1px rgba(13, 110, 253, 0.08);
+        }
+        .login-card .form-control {
+            border-radius: 12px;
+            padding: 0.8rem 1rem;
+            border: 1px solid #dfe7f1;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            background-color: #fff;
+        }
+        .login-card .form-control:focus {
+            border-color: rgba(13, 110, 253, 0.6);
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+            outline: none;
+        }
+        .password-field {
+            position: relative;
+        }
+        .password-field .form-control {
+            padding-right: 52px;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .password-toggle:hover {
+            background: rgba(13, 110, 253, 0.06);
+            color: var(--primary);
+        }
+        .password-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+        .form-check-input:checked {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        .text-primary {
+            color: var(--primary) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} rounded-pill border-0 shadow-sm">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('fsuu-theme');
+            const preferredTheme = savedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            document.body.setAttribute('data-theme', preferredTheme);
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const badge = document.getElementById('notificationBadge');
+                const itemsEl = document.getElementById('notificationItems');
+                const url = '{% url "notification_payload" %}';
+
+                const syncThemeButtons = function () {
+                    const darkMode = document.body.getAttribute('data-theme') === 'dark';
+                    document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+                        const icon = btn.querySelector('i');
+                        if (icon) {
+                            icon.className = darkMode ? 'bi bi-sun' : 'bi bi-moon-stars';
+                        }
+                        btn.setAttribute('title', darkMode ? 'Toggle light mode' : 'Toggle dark mode');
+                        btn.setAttribute('aria-label', darkMode ? 'Toggle light mode' : 'Toggle dark mode');
+                    });
+                };
+
+                document.querySelectorAll('[data-theme-toggle]').forEach(function (btn) {
+                    btn.addEventListener('click', function () {
+                        const nextTheme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                        document.body.setAttribute('data-theme', nextTheme);
+                        localStorage.setItem('fsuu-theme', nextTheme);
+                        syncThemeButtons();
+                    });
+                });
+
+                document.querySelectorAll('[data-theme-toggle] .theme-state').forEach(function (el) {
+                    el.textContent = document.body.getAttribute('data-theme') === 'dark' ? 'Light' : 'Dark';
+                });
+
+                syncThemeButtons();
+
+                async function refreshNotifications() {
+                    if (!badge || !itemsEl) return;
+                    try {
+                        const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                        const data = await response.json();
+                        const count = Number(data.count || 0);
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'inline-block' : 'none';
+
+                        if (!count) {
+                            itemsEl.innerHTML = '<div class="px-3 py-3 text-muted small">No new notifications.</div>';
+                            return;
+                        }
+
+                        const notifications = data.items || [];
+                        itemsEl.innerHTML = notifications.map((item) => `
+                            <a class="list-group-item list-group-item-action px-3 py-2" href="${item.url}">
+                                <div class="fw-semibold text-dark">${item.subject}</div>
+                                <div class="small text-muted">From ${item.sender}</div>
+                                <div class="small text-secondary">${item.body}</div>
+                            </a>
+                        `).join('');
+                    } catch (error) {
+                        console.warn('Notification polling failed:', error);
+                    }
+                }
+
+                refreshNotifications();
+                setInterval(refreshNotifications, 15000);
+            });
+        })();
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

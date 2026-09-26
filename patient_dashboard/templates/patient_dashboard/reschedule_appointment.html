@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card p-4">
+    <h3>Reschedule appointment</h3>
+    <p><strong>Current slot:</strong> {{ appointment.doctor.name }} on {{ appointment.date }} at {{ appointment.time }}</p>
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">New date</label>
+                <input type="date" name="date" class="form-control" required value="{{ appointment.date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">New time</label>
+                <input type="time" name="time" class="form-control" required>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Reschedule</button>
+        <a href="{% url 'my_appointments' %}" class="btn btn-outline-secondary mt-3">Back</a>
+    </form>
+</div>
+{% endblock %}
