@@ -7,6 +7,25 @@ from accounts.models import User
 from .models import Appointment, BlockedSlot, Doctor, DoctorSchedule, InventoryItem
 
 
+class StaffDashboardLayoutTests(TestCase):
+	def test_staff_dashboard_uses_aligned_sidebar_layout(self):
+		staff = User.objects.create_user(
+			username='layout_staff',
+			email='layout_staff@example.com',
+			password='StrongPass123',
+			role='STAFF',
+		)
+		self.client.force_login(staff)
+
+		response = self.client.get(reverse('staff_dashboard'))
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'grid-template-columns: 260px minmax(0, 1fr);')
+		self.assertContains(response, '.staff-content-scroll')
+		self.assertContains(response, 'overflow-y: auto;')
+		self.assertNotContains(response, 'margin-left: calc(50% - 50vw)')
+
+
 class AdminSettingsTests(TestCase):
 	def setUp(self):
 		self.admin = User.objects.create_user(
@@ -40,6 +59,13 @@ class AdminSettingsTests(TestCase):
 		response = self.client.get(reverse('admin_dashboard'))
 		self.assertEqual(response.status_code, 200)
 		self.assertContains(response, 'Appointments per doctor')
+		self.assertContains(response, 'body[data-theme="dark"] .admin-dashboard-page .admin-form input::placeholder')
+		self.assertContains(response, 'body[data-theme="dark"] .doctor-detail-modal')
+		self.assertContains(response, 'placeholder="Search doctors"')
+		self.assertContains(response, '.admin-main > .tab-content')
+		self.assertContains(response, 'overflow-y: auto;')
+		self.assertContains(response, 'tension: 0,')
+		self.assertContains(response, 'min: 0,')
 		self.assertNotContains(response, 'System Settings')
 		self.assertNotContains(response, 'id="settings-tab"')
 
@@ -115,8 +141,20 @@ class AdminSettingsTests(TestCase):
 		self.assertContains(response, 'data-appointment-status="completed"')
 		self.assertContains(response, f'data-bs-target="#adminSummaryModal{appointment.id}"')
 		self.assertContains(response, f'data-confirm-title="Archive Appointment Record?"')
-		self.assertContains(response, 'It will be moved to the Archived Appointments list in Settings.')
+		self.assertContains(response, 'This completed appointment will be moved to the Archived Appointments list in Settings. Continue?')
 		self.assertNotContains(response, f'data-bs-target="#adminConsultationModal{appointment.id}"')
+
+	def test_doctor_archive_uses_clear_success_message(self):
+		doctor = Doctor.objects.create(name='Dr. Profile Archive', specialty='Family Medicine')
+		response = self.client.get(reverse('doctor_delete', args=[doctor.id]), follow=True)
+
+		self.assertEqual(response.status_code, 200)
+		self.assertContains(response, 'Doctor profile archived successfully.')
+		main_index = response.content.index(b'<main class="admin-main">')
+		flash_index = response.content.index(b'class="portal-flash-stack"')
+		header_index = response.content.index(b'<header class="portal-header">')
+		self.assertLess(main_index, flash_index)
+		self.assertLess(flash_index, header_index)
 
 	def test_admin_can_archive_and_restore_completed_appointment(self):
 		patient = User.objects.create_user(
@@ -134,8 +172,9 @@ class AdminSettingsTests(TestCase):
 			status=Appointment.Status.COMPLETED,
 		)
 
-		response = self.client.post(reverse('appointment_archive', args=[appointment.id]))
+		response = self.client.post(reverse('appointment_archive', args=[appointment.id]), follow=True)
 		self.assertRedirects(response, reverse('admin_dashboard') + '?tab=appointments')
+		self.assertContains(response, 'Appointment record archived successfully.')
 		appointment.refresh_from_db()
 		self.assertTrue(appointment.is_archived)
 

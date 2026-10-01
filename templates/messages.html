@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 {% load message_filters %}
 
+{% block flash_messages %}{% endblock %}
+
 {% block content %}
 <style>
     body > .container {
@@ -452,7 +454,7 @@
         <aside class="messages-sidebar">
             <div class="messages-brand">
                 <div class="messages-brand-mark"><i class="bi bi-hospital"></i></div>
-                <span>FSUU Hospital</span>
+                <span>FSUU Clinic</span>
             </div>
 
             <nav class="messages-nav" aria-label="Main dashboard navigation">
@@ -514,6 +516,7 @@
         </aside>
 
         <main class="messages-main">
+            {% include 'partials/flash_messages.html' %}
             <div class="messages-panel">
                 {% if selected_contact %}
                     <section class="chat-panel">

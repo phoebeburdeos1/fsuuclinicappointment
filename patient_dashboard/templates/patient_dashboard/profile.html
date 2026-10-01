@@ -5,11 +5,19 @@
 <style>
     .modern-panel {
         background: #fff;
+        color: #334155;
         border-radius: 20px;
         box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
         border: 1px solid rgba(148, 163, 184, 0.12);
         padding: 1.5rem;
     }
+    .modern-panel h3 { color: #0f172a; }
+    body[data-theme="dark"] .modern-panel {
+        color: #e5edf8;
+        background: #111827;
+        border-color: rgba(148, 163, 184, 0.22);
+    }
+    body[data-theme="dark"] .modern-panel h3 { color: #f8fafc; }
     .profile-form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -70,6 +78,35 @@
     .profile-dropzone strong { font-size: 0.82rem; }
     .profile-dropzone span { margin-top: 0.2rem; color: #64748b; font-size: 0.68rem; }
     .profile-dropzone input { display: none; }
+    body[data-theme="dark"] .profile-field label,
+    body[data-theme="dark"] .profile-upload-label { color: #e2e8f0; }
+    body[data-theme="dark"] .profile-field input,
+    body[data-theme="dark"] .profile-field textarea {
+        color: #e5edf8;
+        background: #0f172a;
+        border-color: #475569;
+        color-scheme: dark;
+    }
+    body[data-theme="dark"] .profile-field input::placeholder,
+    body[data-theme="dark"] .profile-field textarea::placeholder { color: #cbd5e1; opacity: 1; }
+    body[data-theme="dark"] .profile-upload {
+        color: #e5edf8;
+        background: #0f172a;
+        border-color: #475569;
+    }
+    body[data-theme="dark"] .profile-dropzone {
+        color: #e0f2fe;
+        background: #111827;
+        border-color: #64748b;
+    }
+    body[data-theme="dark"] .profile-dropzone strong { color: #f8fafc; }
+    body[data-theme="dark"] .profile-dropzone span { color: #cbd5e1; }
+    body[data-theme="dark"] .profile-dropzone:hover,
+    body[data-theme="dark"] .profile-dropzone.is-dragging {
+        color: #f8fafc;
+        background: #1e3a5f;
+        border-color: #7dd3fc;
+    }
     @media (max-width: 700px) { .profile-form-grid { grid-template-columns: 1fr; } }
 </style>
 

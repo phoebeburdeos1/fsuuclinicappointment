@@ -1,26 +1,42 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_container_class %}container-fluid p-0{% endblock %}
+{% block flash_messages %}{% endblock %}
 
 {% block content %}
 <style>
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
   .staff-dashboard-page {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     min-height: 100vh;
     background: #f8fafc;
   }
   .staff-shell {
-    display: flex;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
     min-height: 100vh;
     width: 100%;
   }
   .staff-sidebar {
-    width: 260px;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    min-width: 0;
     min-height: 100vh;
+    height: 100vh;
+    align-self: start;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    color: #e2e8f0;
+    background: linear-gradient(180deg, var(--portal-sidebar-top) 0%, var(--portal-sidebar-bottom) 100%);
+    color: var(--portal-sidebar-text);
+    border-right: 1px solid var(--portal-sidebar-border);
     padding: 1.2rem 0.9rem;
     flex-shrink: 0;
   }
@@ -31,38 +47,46 @@
     font-size: 1.3rem;
     font-weight: 800;
     padding: 0.5rem 0.6rem 1rem;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.21);
+    border-bottom: 1px solid var(--portal-sidebar-border);
     margin-bottom: 1rem;
   }
   .brand-mark {
-    width: 38px;
-    height: 38px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px;
+    border-radius: 0;
+    background: transparent;
     display: grid;
     place-items: center;
-    font-size: 1rem;
   }
+  .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
   .staff-nav a {
     display: flex;
     align-items: center;
     gap: 0.7rem;
     padding: 0.7rem 0.8rem;
     border-radius: 10px;
-    color: rgba(226, 232, 240, 0.84);
+    color: var(--portal-sidebar-text);
     font-weight: 600;
     text-decoration: none;
     margin-bottom: 0.3rem;
   }
   .staff-nav a.active, .staff-nav a:hover {
-    background: rgba(59, 130, 246, 0.18);
-    color: #fff;
+    background: var(--portal-sidebar-active-bg);
+    color: var(--portal-sidebar-active-text);
   }
   .staff-main {
-    flex: 1;
-    padding: 1.4rem 1.5rem 2rem;
     min-width: 0;
+    padding: 1.4rem 1.5rem 2rem;
+    overflow-x: hidden;
   }
+  .staff-main > .portal-header {
+    margin: 0 0 1.1rem;
+    padding: 0.85rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .staff-content-scroll { min-width: 0; }
   .staff-topbar {
     display: flex;
     justify-content: space-between;
@@ -197,7 +221,8 @@
     min-width: 170px;
   }
   @media (min-width: 992px) {
-    .staff-shell.sidebar-collapsed .staff-sidebar { width: 76px; padding-right: 0.55rem; padding-left: 0.55rem; }
+    .staff-shell.sidebar-collapsed { grid-template-columns: 76px minmax(0, 1fr); }
+    .staff-shell.sidebar-collapsed .staff-sidebar { width: 100%; padding-right: 0.55rem; padding-left: 0.55rem; }
     .staff-shell.sidebar-collapsed .staff-brand span { display: none; }
     .staff-shell.sidebar-collapsed .staff-brand,
     .staff-shell.sidebar-collapsed .staff-nav a { justify-content: center; }
@@ -205,10 +230,40 @@
     .staff-shell.sidebar-collapsed .staff-nav a i { font-size: 1.1rem; }
   }
   @media (max-width: 991px) {
+    .staff-shell { grid-template-columns: minmax(0, 1fr); }
+    .staff-sidebar { position: static; width: 100%; min-height: 0; height: auto; }
+    .staff-main { padding: 1rem; }
+  }
+  @media (max-width: 991px) {
     .staff-shell.sidebar-collapsed .staff-sidebar { display: flex; width: 100%; min-height: 0; flex-direction: row; align-items: center; padding: 0.4rem 0.7rem; }
     .staff-shell.sidebar-collapsed .staff-brand,
     .staff-shell.sidebar-collapsed .staff-nav { display: none; }
     .staff-shell.sidebar-collapsed .sidebar-collapse-control { margin: 0 0 0 auto; }
+  }
+  @media (min-width: 992px) {
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    .staff-dashboard-page { height: 100vh; min-height: 0; overflow: hidden; }
+    .staff-shell { height: 100vh; min-height: 0; overflow: hidden; }
+    .staff-sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; height: 100vh; }
+    .staff-main {
+      grid-column: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .staff-main > .portal-flash-stack { flex: 0 0 auto; }
+    .staff-main > .portal-header { position: sticky; top: 0; z-index: 30; flex: 0 0 auto; }
+    .staff-content-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    .staff-shell.sidebar-collapsed .staff-sidebar { width: 76px; }
   }
   .sidebar-collapse-control { display: flex; justify-content: flex-end; margin: 0.75rem 0; }
   .staff-sidebar .sidebar-collapse-control { margin-top: auto; }
@@ -219,7 +274,7 @@
   <div class="staff-shell">
     <aside class="staff-sidebar">
       <div class="staff-brand">
-        <div class="brand-mark"><i class="bi bi-hospital"></i></div>
+        <div class="brand-mark"><img src="{% get_static_prefix %}images/urios-crest.png" alt="Father Saturnino Urios University crest"></div>
         <span>Clinic Staff</span>
       </div>
 
@@ -234,8 +289,10 @@
     </aside>
 
     <main class="staff-main">
+      {% include 'partials/flash_messages.html' %}
       {% include 'partials/portal_header.html' %}
 
+      <div class="staff-content-scroll">
       <div class="row g-3 mb-3">
         <div class="col-12 col-md-6 col-xl-3">
           <div class="metric-card">
@@ -338,6 +395,7 @@
             <a class="btn btn-warning mt-3 w-100" href="{% url 'inventory' %}">Go to Inventory</a>
           </div>
         </div>
+      </div>
       </div>
     </main>
   </div>

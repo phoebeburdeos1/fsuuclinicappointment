@@ -58,6 +58,26 @@ class PatientDashboardLayoutTests(TestCase):
         self.assertContains(response, 'Upcoming appointment')
         self.assertContains(response, 'Find a Doctor')
         self.assertContains(response, 'My Appointments')
+        self.assertContains(response, 'grid-template-columns: 260px minmax(0, 1fr);')
+        self.assertNotContains(response, 'margin-left: calc(50% - 50vw)')
+        self.assertContains(response, '.patient-main > .tab-content')
+        self.assertContains(response, 'overflow-y: auto;')
+
+    def test_patient_profile_page_renders_dark_mode_contrast_styles(self):
+        patient = User.objects.create_user(
+            username='patient_profile_dark',
+            email='patient_profile_dark@example.com',
+            password='StrongPass123',
+            role='PATIENT',
+        )
+        self.client.force_login(patient)
+
+        response = self.client.get(reverse('profile_update'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Profile photo')
+        self.assertContains(response, 'body[data-theme="dark"] .profile-field label')
+        self.assertContains(response, 'body[data-theme="dark"] .profile-upload')
 
     def test_patient_can_book_an_available_slot(self):
         patient = User.objects.create_user(
@@ -80,13 +100,51 @@ class PatientDashboardLayoutTests(TestCase):
         self.client.force_login(patient)
         response = self.client.post(
             reverse('book_appointment'),
-            {'doctor': doctor.id, 'date': appointment_date.isoformat(), 'time': slot_time.strftime('%H:%M'), 'notes': 'Need a consultation'},
+            {
+                'doctor': doctor.id,
+                'date': appointment_date.isoformat(),
+                'time': slot_time.strftime('%H:%M'),
+                'visit_type': 'Other',
+                'visit_type_other': 'Medical Certificate',
+                'notes': 'Need a consultation',
+            },
             follow=True,
         )
 
         self.assertEqual(response.status_code, 200)
         appointment = Appointment.objects.get(patient=patient, doctor=doctor, date=appointment_date)
         self.assertEqual(appointment.status, Appointment.Status.PENDING)
+        self.assertEqual(appointment.notes, 'Other: Medical Certificate: Need a consultation')
+        self.assertNotContains(
+            response,
+            '/admin-dashboard/settings/ now opens System Settings as the active section instead of showing Overview above it.',
+        )
+
+    def test_other_visit_type_requires_specification(self):
+        patient = User.objects.create_user(
+            username='patient_other_visit',
+            email='patient_other_visit@example.com',
+            password='StrongPass123',
+            role='PATIENT',
+        )
+        doctor = Doctor.objects.create(name='Dr. Other', specialty='General Medicine')
+
+        self.client.force_login(patient)
+        response = self.client.post(
+            reverse('book_appointment'),
+            {
+                'doctor': doctor.id,
+                'date': (date.today() + timedelta(days=1)).isoformat(),
+                'time': '10:00',
+                'visit_type': 'Other',
+                'notes': 'Need a consultation',
+            },
+            follow=True,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Please specify your visit type.')
+        self.assertFalse(Appointment.objects.filter(patient=patient, doctor=doctor).exists())
 
     def test_patient_booking_requires_reason_for_visit(self):
         patient = User.objects.create_user(

@@ -1,7 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_container_class %}container-fluid p-0{% endblock %}
+{% block flash_messages %}{% endblock %}
 
 {% block content %}
 <style>
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
     .admin-dashboard-page {
         --dashboard-bg: #f8fafc;
         --dashboard-panel: #ffffff;
@@ -21,29 +29,30 @@
         --dashboard-border: rgba(148, 163, 184, 0.22);
     }
     .admin-dashboard-page {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
+        width: 100%;
+        max-width: 100%;
         min-height: 100vh;
         background: var(--dashboard-bg);
         color: var(--dashboard-text);
     }
     .admin-shell {
-        display: flex;
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
         width: 100%;
         min-height: 100vh;
         background: var(--dashboard-bg);
-        overflow: hidden;
     }
     .admin-sidebar {
-        position: fixed;
+        position: sticky;
         top: 0;
-        left: 0;
-        width: 260px;
+        width: 100%;
+        min-width: 0;
         height: 100vh;
-        flex-shrink: 0;
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        color: #e2e8f0;
+        align-self: start;
+        overflow-y: auto;
+        background: linear-gradient(180deg, var(--portal-sidebar-top) 0%, var(--portal-sidebar-bottom) 100%);
+        color: var(--portal-sidebar-text);
+        border-right: 1px solid var(--portal-sidebar-border);
         padding: 1.5rem 1rem 1rem;
         display: flex;
         flex-direction: column;
@@ -57,19 +66,20 @@
         font-size: 1.35rem;
         font-weight: 800;
         letter-spacing: -0.04em;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+        border-bottom: 1px solid var(--portal-sidebar-border);
         margin-bottom: 0.8rem;
     }
     .brand-mark {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 0;
+        background: transparent;
         display: grid;
         place-items: center;
-        font-size: 1rem;
         font-weight: 700;
     }
+    .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
     .admin-nav {
         display: flex;
         flex-direction: column;
@@ -77,7 +87,7 @@
         margin-top: 0.5rem;
     }
     .admin-nav .nav-link {
-        color: rgba(226, 232, 240, 0.8);
+        color: var(--portal-sidebar-text) !important;
         border-radius: 10px;
         padding: 0.7rem 0.8rem;
         font-weight: 600;
@@ -89,8 +99,8 @@
     }
     .admin-nav .nav-link:hover,
     .admin-nav .nav-link.active {
-        background: rgba(59, 130, 246, 0.18);
-        color: #fff;
+        background: var(--portal-sidebar-active-bg);
+        color: var(--portal-sidebar-active-text) !important;
     }
     .admin-nav .nav-link i,
     .brand-mark i {
@@ -216,6 +226,22 @@
         border-radius: 12px;
         min-width: 170px;
     }
+    .doctor-detail-modal {
+        --dashboard-bg: #f8fafc;
+        --dashboard-panel: #ffffff;
+        --dashboard-text: #1f2a37;
+        --dashboard-heading: #0f172a;
+        --dashboard-muted: #64748b;
+        --dashboard-border: rgba(148, 163, 184, 0.18);
+    }
+    body[data-theme="dark"] .doctor-detail-modal {
+        --dashboard-bg: #0b1220;
+        --dashboard-panel: #111827;
+        --dashboard-text: #e5edf8;
+        --dashboard-heading: #f8fafc;
+        --dashboard-muted: #a5b4c8;
+        --dashboard-border: rgba(148, 163, 184, 0.22);
+    }
     .doctor-detail-modal .modal-content {
         overflow: hidden;
         border: 1px solid var(--dashboard-border);
@@ -224,6 +250,7 @@
         color: var(--dashboard-text);
         box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
     }
+    body[data-theme="dark"] .doctor-detail-modal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
     .doctor-detail-modal .modal-header {
         padding: 1.1rem 1.25rem;
         border-bottom: 1px solid var(--dashboard-border);
@@ -263,7 +290,7 @@
     .admin-summary-label { display: block; margin-bottom: 0.5rem; color: var(--dashboard-muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
     .admin-sidebar-footer {
         margin-top: auto;
-        border-top: 1px solid rgba(148, 163, 184, 0.25);
+        border-top: 1px solid var(--portal-sidebar-border);
         padding-top: 1rem;
         display: flex;
         align-items: center;
@@ -280,24 +307,30 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: rgba(59, 130, 246, 0.25);
-        color: #fff;
+        background: rgba(59, 130, 246, 0.16);
+        color: var(--accent-strong);
         display: grid;
         place-items: center;
         font-weight: 700;
     }
     .admin-user small {
         display: block;
-        color: rgba(226, 232, 240, 0.75);
+        color: var(--portal-sidebar-text);
+        opacity: 0.75;
     }
     .admin-main {
         flex: 1 1 auto;
         min-width: 0;
         overflow-x: hidden;
         background: var(--dashboard-bg);
-        padding: 0 1.15rem 1.6rem 1.15rem;
-        margin-left: 260px;
+        padding: 1rem 1.15rem 1.6rem;
         min-height: 100vh;
+    }
+    .admin-main > .portal-header {
+        margin: 0 0 1.1rem;
+        padding: 0.85rem 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: 14px;
     }
     .admin-topbar {
         display: flex;
@@ -544,6 +577,25 @@
         border-color: var(--dashboard-border);
         background: var(--dashboard-panel-alt);
         color: var(--dashboard-text);
+        color-scheme: dark;
+    }
+    body[data-theme="dark"] .admin-dashboard-page .admin-form input::placeholder,
+    body[data-theme="dark"] .admin-dashboard-page .admin-form textarea::placeholder,
+    body[data-theme="dark"] .admin-dashboard-page .filter-bar input::placeholder {
+        color: #cbd5e1;
+        opacity: 1;
+    }
+    body[data-theme="dark"] .admin-dashboard-page .admin-table thead th { color: #cbd5e1; }
+    body[data-theme="dark"] .admin-dashboard-page .table-action:not(.text-warning) { color: #f1f5f9; }
+    body[data-theme="dark"] .admin-dashboard-page .table-action:hover:not(.text-warning) {
+        color: #0f172a;
+        background: #bfdbfe;
+        border-color: #93c5fd;
+    }
+    body[data-theme="dark"] .admin-dashboard-page .table-action.text-warning:hover {
+        color: #fcd34d !important;
+        background: #422006;
+        border-color: #92400e;
     }
     .chart-wrap {
         position: relative;
@@ -723,7 +775,7 @@
     body[data-theme="dark"] .bg-status-no-show { background: rgba(244, 63, 94, 0.18); color: #fda4af; }
     @media (max-width: 991px) {
         .admin-shell {
-            flex-direction: column;
+            grid-template-columns: minmax(0, 1fr);
         }
         .admin-sidebar {
             position: static;
@@ -740,8 +792,8 @@
         }
     }
     @media (min-width: 992px) {
-        .admin-shell.sidebar-collapsed .admin-sidebar { width: 76px; padding-right: 0.55rem; padding-left: 0.55rem; }
-        .admin-shell.sidebar-collapsed .admin-main { margin-left: 76px; }
+        .admin-shell.sidebar-collapsed { grid-template-columns: 76px minmax(0, 1fr); }
+        .admin-shell.sidebar-collapsed .admin-sidebar { width: 100%; padding-right: 0.55rem; padding-left: 0.55rem; }
         .admin-shell.sidebar-collapsed .admin-brand span,
         .admin-shell.sidebar-collapsed .admin-user > div { display: none; }
         .admin-shell.sidebar-collapsed .admin-brand,
@@ -750,11 +802,42 @@
         .admin-shell.sidebar-collapsed .admin-nav .nav-link { gap: 0; overflow: hidden; font-size: 0; padding-right: 0.55rem; padding-left: 0.55rem; }
         .admin-shell.sidebar-collapsed .admin-nav .nav-link i { font-size: 1.1rem; }
     }
+    @media (min-width: 992px) {
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        .admin-dashboard-page { height: 100vh; min-height: 0; overflow: hidden; }
+        .admin-shell { height: 100vh; min-height: 0; overflow: hidden; }
+        .admin-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 260px;
+            height: 100vh;
+        }
+        .admin-main {
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .admin-main > .portal-flash-stack { flex: 0 0 auto; }
+        .admin-main > .portal-header { position: sticky; top: 0; z-index: 30; flex: 0 0 auto; }
+        .admin-main > .tab-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+        }
+        .admin-shell.sidebar-collapsed .admin-sidebar { width: 76px; }
+    }
     .admin-sidebar .sidebar-collapse-control { margin-top: auto; }
     .admin-sidebar .admin-sidebar-footer { margin-top: 0; }
     @media (max-width: 991px) {
         .admin-shell.sidebar-collapsed .admin-sidebar { display: flex; position: static; width: 100%; height: auto; min-height: 0; flex-direction: row; align-items: center; padding: 0.4rem 0.7rem; }
-        .admin-shell.sidebar-collapsed .admin-main { margin-left: 0; }
         .admin-shell.sidebar-collapsed .admin-brand,
         .admin-shell.sidebar-collapsed .admin-nav,
         .admin-shell.sidebar-collapsed .admin-user { display: none; }
@@ -774,8 +857,8 @@
     <div class="admin-shell">
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <div class="brand-mark"><i class="bi bi-hospital"></i></div>
-                <span>FSUU Hospital</span>
+                <div class="brand-mark"><img src="{% get_static_prefix %}images/urios-crest.png" alt="Father Saturnino Urios University crest"></div>
+                <span>FSUU Clinic</span>
             </div>
 
             <nav class="admin-nav nav nav-pills flex-column" role="tablist" aria-label="Admin dashboard sections">
@@ -831,6 +914,7 @@
         </aside>
 
         <main class="admin-main">
+            {% include 'partials/flash_messages.html' %}
             {% include 'partials/portal_header.html' %}
 
             <div class="tab-content">
@@ -1041,7 +1125,7 @@
                                                 {% if appointment.status == 'COMPLETED' %}
                                                 <button type="button" class="table-action" data-bs-toggle="modal" data-bs-target="#adminSummaryModal{{ appointment.id }}"><i class="bi bi-file-medical"></i>View Summary</button>
                                                 {% if request.user.role == 'ADMIN' %}
-                                                <form method="post" action="{% url 'appointment_archive' appointment.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Archive Appointment Record?" data-confirm-message="Are you sure you want to archive this completed appointment? It will be moved to the Archived Appointments list in Settings." data-confirm-text="Archive">
+                                                <form method="post" action="{% url 'appointment_archive' appointment.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Archive Appointment Record?" data-confirm-message="This completed appointment will be moved to the Archived Appointments list in Settings. Continue?" data-confirm-text="Archive">
                                                     {% csrf_token %}
                                                     <button class="table-action text-warning" type="submit"><i class="bi bi-archive me-1"></i>Archive</button>
                                                 </form>
@@ -1116,7 +1200,7 @@
                                                     <div class="d-flex flex-wrap gap-2">
                                                         <a class="doctor-action-btn edit" href="{% url 'doctor_edit' doctor.id %}" onclick="event.stopPropagation();"><i class="bi bi-pencil-square"></i>Edit</a>
                                                         <a class="doctor-action-btn schedule" href="{% url 'admin_dashboard' %}?tab=schedules&doctor_id={{ doctor.id }}" onclick="event.stopPropagation();"><i class="bi bi-calendar3"></i>Schedules</a>
-                                                        <a class="doctor-action-btn archive" href="{% url 'doctor_delete' doctor.id %}" data-confirm data-confirm-type="warning" data-confirm-title="Archive Doctor Account?" data-confirm-message="Are you sure you want to archive this doctor? They will be hidden from the public directory and cannot be booked until restored." data-confirm-text="Archive Doctor" onclick="event.stopPropagation();"><i class="bi bi-archive-fill"></i>Archive</a>
+                                                        <a class="doctor-action-btn archive" href="{% url 'doctor_delete' doctor.id %}" data-confirm data-confirm-type="warning" data-confirm-title="Archive Doctor Profile?" data-confirm-message="This doctor will be hidden from the public directory and cannot be booked until restored. Continue?" data-confirm-text="Archive Doctor" onclick="event.stopPropagation();"><i class="bi bi-archive-fill"></i>Archive</a>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -1709,7 +1793,7 @@ new Chart(document.getElementById('dailyChart'), {
                 return gradient;
             },
             fill: true,
-            tension: 0.4,
+            tension: 0,
             pointRadius: 3,
             pointHoverRadius: 6,
             pointBackgroundColor: '#10b981',
@@ -1738,6 +1822,7 @@ new Chart(document.getElementById('dailyChart'), {
                 grid: { display: false, drawBorder: false }
             },
             y: {
+                min: 0,
                 beginAtZero: true,
                 ticks: { stepSize: 1, precision: 0 },
                 grid: { color: '#f1f5f9', drawBorder: false }

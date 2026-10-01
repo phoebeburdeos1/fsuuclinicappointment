@@ -16,10 +16,11 @@ class BookingForm(forms.Form):
         required=False,
         choices=[
             ('', 'Select a visit type'),
-            ('General Consultation', 'General Consultation'),
+            ('First-time Consultation', 'First-time Consultation'),
             ('Follow-up Visit', 'Follow-up Visit'),
-            ('Acute Symptoms / Fever', 'Acute Symptoms / Fever'),
-            ('Routine Examination', 'Routine Examination'),
+            ('Routine Checkup', 'Routine Checkup'),
+            ('Lab Test / Results Review', 'Lab Test / Results Review'),
+            ('Other', 'Other'),
         ],
         widget=forms.Select(attrs={'class': 'form-select'}),
     )

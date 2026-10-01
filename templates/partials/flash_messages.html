@@ -1,0 +1,12 @@
+{% if messages %}
+<div class="portal-flash-stack">
+    {% for message in messages %}
+    <div class="portal-flash" data-flash-alert data-variant="{{ message.tags|default:'success' }}" role="alert">
+        <p class="portal-flash-message">{{ message }}</p>
+        <button class="portal-flash-close" type="button" data-flash-dismiss aria-label="Dismiss notification" title="Dismiss notification">
+            <i class="bi bi-x-lg" aria-hidden="true"></i>
+        </button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

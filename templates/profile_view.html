@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block flash_messages %}{% endblock %}
+
 {% block content %}
 <style>
     body > .container {
@@ -252,7 +254,7 @@
         <aside class="patient-profile-sidebar">
             <div class="patient-profile-brand">
                 <div class="patient-profile-brand-mark"><i class="bi bi-hospital"></i></div>
-                <span>FSUU Hospital</span>
+                <span>FSUU Clinic</span>
             </div>
 
             <nav class="patient-profile-nav" aria-label="Main dashboard navigation">
@@ -271,6 +273,7 @@
         </aside>
 
         <main class="patient-profile-main">
+            {% include 'partials/flash_messages.html' %}
             <div class="patient-profile-header">
                 <div class="page-title-wrap">
                     <div class="title-pill"><i class="bi bi-person-vcard"></i></div>

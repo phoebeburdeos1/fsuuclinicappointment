@@ -200,9 +200,14 @@ def book_appointment(request):
     selected_time = request.POST.get('time')
     notes = (request.POST.get('notes') or '').strip()
     visit_type = (request.POST.get('visit_type') or '').strip()
+    visit_type_other = (request.POST.get('visit_type_other') or '').strip()
 
     if not notes:
         messages.error(request, 'Please provide a reason for your visit.')
+        return redirect('patient_dashboard')
+
+    if visit_type == 'Other' and not visit_type_other:
+        messages.error(request, 'Please specify your visit type.')
         return redirect('patient_dashboard')
 
     if not all([doctor_id, selected_date, selected_time]):
@@ -213,7 +218,8 @@ def book_appointment(request):
     target_time = datetime.strptime(selected_time, '%H:%M').time()
     formatted_notes = notes
     if visit_type:
-        formatted_notes = f'{visit_type}: {notes}'
+        visit_type_label = f'Other: {visit_type_other}' if visit_type == 'Other' else visit_type
+        formatted_notes = f'{visit_type_label}: {notes}'
 
     with transaction.atomic():
         doctor = Doctor.objects.select_for_update().get(pk=doctor_id)

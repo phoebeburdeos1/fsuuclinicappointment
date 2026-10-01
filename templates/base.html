@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FSUU Hospital{% endblock %}</title>
+    <title>{% block title %}FSUU Clinic{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -34,6 +34,12 @@
             --sidebar-bottom: #0f172a;
             --sidebar-text: #e2e8f0;
             --sidebar-soft: rgba(148, 163, 184, 0.18);
+            --portal-sidebar-top: #ffffff;
+            --portal-sidebar-bottom: #f8fafc;
+            --portal-sidebar-text: #334155;
+            --portal-sidebar-border: rgba(148, 163, 184, 0.3);
+            --portal-sidebar-active-bg: rgba(37, 99, 235, 0.1);
+            --portal-sidebar-active-text: #1d4ed8;
             --accent: #0d6efd;
             --accent-strong: #2563eb;
             --bubble-me: linear-gradient(135deg, #0d6efd 0%, #2563eb 100%);
@@ -55,6 +61,12 @@
             --sidebar-bottom: #020817;
             --sidebar-text: #e2e8f0;
             --sidebar-soft: rgba(148, 163, 184, 0.15);
+            --portal-sidebar-top: #1e293b;
+            --portal-sidebar-bottom: #0f172a;
+            --portal-sidebar-text: #e2e8f0;
+            --portal-sidebar-border: rgba(148, 163, 184, 0.25);
+            --portal-sidebar-active-bg: rgba(59, 130, 246, 0.18);
+            --portal-sidebar-active-text: #ffffff;
             --accent: #60a5fa;
             --accent-strong: #93c5fd;
             --bubble-me: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
@@ -219,6 +231,35 @@
         .global-confirm-card[data-type="success"] .global-confirm-submit { background: #059669; box-shadow: 0 6px 15px rgba(16,185,129,.2); }
         .global-confirm-card[data-type="success"] .global-confirm-submit:hover { background: #047857; }
         @keyframes confirmModalIn { from { opacity: 0; transform: scale(.97) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .portal-flash-stack { display: grid; gap: 0.55rem; width: 100%; margin: 0 0 0.85rem; }
+        .portal-flash {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            width: min(100%, 760px);
+            min-width: 0;
+            padding: 0.8rem 0.9rem 0.8rem 1rem;
+            border: 1px solid #a7f3d0;
+            border-left: 4px solid #10b981;
+            border-radius: 12px;
+            color: #065f46;
+            background: #ecfdf5;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+            transition: opacity 0.22s ease, transform 0.22s ease;
+        }
+        .portal-flash[data-variant~="error"] { color: #991b1b; background: #fef2f2; border-color: #fecaca; border-left-color: #ef4444; }
+        .portal-flash[data-variant~="warning"] { color: #92400e; background: #fffbeb; border-color: #fde68a; border-left-color: #f59e0b; }
+        .portal-flash[data-variant~="info"] { color: #1e40af; background: #eff6ff; border-color: #bfdbfe; border-left-color: #3b82f6; }
+        .portal-flash-message { flex: 1 1 auto; min-width: 0; margin: 0; overflow-wrap: anywhere; line-height: 1.45; }
+        .portal-flash-close { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border: 0; border-radius: 8px; color: currentColor; background: transparent; opacity: 0.75; }
+        .portal-flash-close:hover { background: rgba(15, 23, 42, 0.08); opacity: 1; }
+        .portal-flash.is-dismissing { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+        body[data-theme="dark"] .portal-flash { color: #ecfdf5; background: #064e3b; border-color: #047857; border-left-color: #34d399; }
+        body[data-theme="dark"] .portal-flash[data-variant~="error"] { color: #fff1f2; background: #4c0519; border-color: #9f1239; border-left-color: #fb7185; }
+        body[data-theme="dark"] .portal-flash[data-variant~="warning"] { color: #fffbeb; background: #451a03; border-color: #92400e; border-left-color: #fbbf24; }
+        body[data-theme="dark"] .portal-flash[data-variant~="info"] { color: #eff6ff; background: #172554; border-color: #1d4ed8; border-left-color: #60a5fa; }
+        @media (prefers-reduced-motion: reduce) { .portal-flash { transition: none; } }
         .portal-header {
             position: sticky;
             top: 0;
@@ -426,12 +467,8 @@
     </style>
 </head>
 <body>
-    <div class="container py-4">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags|default:'info' }} rounded-pill border-0 shadow-sm">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+    <div class="{% block page_container_class %}container py-4{% endblock %}">
+        {% block flash_messages %}{% include 'partials/flash_messages.html' %}{% endblock %}
 
         {% block content %}{% endblock %}
     </div>
@@ -662,6 +699,23 @@
                 setInterval(refreshNotifications, 5000);
             });
         })();
+    </script>
+    <script>
+        document.querySelectorAll('[data-flash-alert]').forEach(function (alert) {
+            const dismissButton = alert.querySelector('[data-flash-dismiss]');
+            const dismiss = function () {
+                if (alert.classList.contains('is-dismissing')) return;
+                alert.classList.add('is-dismissing');
+                window.setTimeout(function () { alert.remove(); }, 240);
+            };
+            const timer = window.setTimeout(dismiss, 4000);
+            if (dismissButton) {
+                dismissButton.addEventListener('click', function () {
+                    window.clearTimeout(timer);
+                    dismiss();
+                });
+            }
+        });
     </script>
     {% block scripts %}{% endblock %}
 </body>

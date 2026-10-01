@@ -1,7 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block page_container_class %}container-fluid p-0{% endblock %}
+{% block flash_messages %}{% endblock %}
 
 {% block content %}
 <style>
+    html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+    }
     .patient-dashboard-page {
         --patient-bg: #f8fafc;
         --patient-panel: #ffffff;
@@ -21,29 +29,31 @@
         --patient-border: rgba(148, 163, 184, 0.22);
     }
     .patient-dashboard-page {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-        margin-right: calc(50% - 50vw);
+        width: 100%;
+        max-width: 100%;
+        overflow-x: clip;
         min-height: 100vh;
         background: var(--patient-bg);
         color: var(--patient-text);
     }
     .patient-shell {
-        display: flex;
+        display: grid;
+        grid-template-columns: 260px minmax(0, 1fr);
         width: 100%;
         min-height: 100vh;
         background: var(--patient-bg);
-        overflow: hidden;
     }
     .patient-sidebar {
-        position: fixed;
+        position: sticky;
         top: 0;
-        left: 0;
-        width: 260px;
+        width: 100%;
+        min-width: 0;
         height: 100vh;
-        flex-shrink: 0;
-        background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-        color: #e2e8f0;
+        align-self: start;
+        overflow-y: auto;
+        background: linear-gradient(180deg, var(--portal-sidebar-top) 0%, var(--portal-sidebar-bottom) 100%);
+        color: var(--portal-sidebar-text);
+        border-right: 1px solid var(--portal-sidebar-border);
         padding: 1.5rem 1rem 1rem;
         display: flex;
         flex-direction: column;
@@ -57,19 +67,20 @@
         font-size: 1.35rem;
         font-weight: 800;
         letter-spacing: -0.04em;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+        border-bottom: 1px solid var(--portal-sidebar-border);
         margin-bottom: 0.8rem;
     }
     .brand-mark {
-        width: 38px;
-        height: 38px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+        border-radius: 0;
+        background: transparent;
         display: grid;
         place-items: center;
-        font-size: 1rem;
         font-weight: 700;
     }
+    .brand-mark img { width: 100%; height: 100%; object-fit: contain; }
     .patient-nav {
         display: flex;
         flex-direction: column;
@@ -77,7 +88,7 @@
         margin-top: 0.5rem;
     }
     .patient-nav .nav-link {
-        color: rgba(226, 232, 240, 0.8);
+        color: var(--portal-sidebar-text) !important;
         border-radius: 10px;
         padding: 0.7rem 0.8rem;
         font-weight: 600;
@@ -89,8 +100,8 @@
     }
     .patient-nav .nav-link:hover,
     .patient-nav .nav-link.active {
-        background: rgba(59, 130, 246, 0.18);
-        color: #fff;
+        background: var(--portal-sidebar-active-bg);
+        color: var(--portal-sidebar-active-text) !important;
     }
     .patient-btn {
         border-radius: 12px;
@@ -122,7 +133,7 @@
     }
     .patient-sidebar-footer {
         margin-top: auto;
-        border-top: 1px solid rgba(148, 163, 184, 0.25);
+        border-top: 1px solid var(--portal-sidebar-border);
         padding-top: 1rem;
         display: flex;
         align-items: center;
@@ -139,24 +150,29 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: rgba(59, 130, 246, 0.25);
-        color: #fff;
+        background: rgba(59, 130, 246, 0.16);
+        color: var(--accent-strong);
         display: grid;
         place-items: center;
         font-weight: 700;
     }
     .patient-user small {
         display: block;
-        color: rgba(226, 232, 240, 0.75);
+        color: var(--portal-sidebar-text);
+        opacity: 0.75;
     }
     .patient-main {
-        flex: 1 1 auto;
         min-width: 0;
         overflow-x: hidden;
         background: var(--patient-bg);
-        padding: 0 1.15rem 1.6rem 1.15rem;
-        margin-left: 260px;
+        padding: 1rem 1.15rem 1.6rem;
         min-height: 100vh;
+    }
+    .patient-main > .portal-header {
+        margin: 0 0 1.1rem;
+        padding: 0.85rem 1.25rem;
+        border: 1px solid var(--border);
+        border-radius: 14px;
     }
     .patient-topbar {
         display: flex;
@@ -189,6 +205,38 @@
         font-weight: 700;
         color: var(--patient-heading);
         margin-bottom: 0.8rem;
+    }
+    .profile-edit-form p { margin-bottom: 1rem; }
+    .profile-edit-form label { color: var(--patient-heading); font-weight: 700; }
+    .profile-photo-upload {
+        color: var(--patient-text);
+        background: var(--patient-panel-alt);
+        border-color: var(--patient-border) !important;
+    }
+    .profile-edit-form .form-control {
+        color: #0f172a;
+        background-color: #fff;
+        border-color: var(--patient-border);
+    }
+    .profile-edit-form .form-control::placeholder { color: #64748b; opacity: 1; }
+    .profile-edit-form input[type="file"]::file-selector-button {
+        color: #0f172a;
+        background: #e2e8f0;
+        border: 0;
+        border-radius: 6px;
+        padding: 0.4rem 0.65rem;
+    }
+    body[data-theme="dark"] .profile-photo-upload { background: var(--patient-panel-alt); }
+    body[data-theme="dark"] .profile-edit-form label { color: var(--patient-heading); }
+    body[data-theme="dark"] .profile-edit-form .form-control {
+        color: var(--patient-text);
+        background-color: var(--patient-panel-alt);
+        border-color: var(--patient-border);
+    }
+    body[data-theme="dark"] .profile-edit-form .form-control::placeholder { color: #a5b4c8; }
+    body[data-theme="dark"] .profile-edit-form input[type="file"]::file-selector-button {
+        color: #e5edf8;
+        background: #263449;
     }
     .stat-card {
         background: #fff;
@@ -297,6 +345,10 @@
         --bs-table-color: var(--patient-text);
         --bs-table-border-color: var(--patient-border);
         color: var(--patient-text);
+    }
+    body[data-theme="dark"] .patient-dashboard-page .appointment-table-card thead th,
+    body[data-theme="dark"] .patient-dashboard-page .patient-appointments-table thead th {
+        color: #cbd5e1;
     }
     body[data-theme="dark"] .patient-dashboard-page .next-appointment-card,
     body[data-theme="dark"] .patient-dashboard-page .empty-state-card {
@@ -798,11 +850,30 @@
         background: #f8fbff;
     }
     .slot-pill.selected {
-        background: #dbeafe;
-        border-color: #93c5fd;
-        color: #1d4ed8;
-        box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.12);
+        background: #2563eb;
+        border-color: #2563eb;
+        color: #fff;
+        font-weight: 700;
+        box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
     }
+    .booking-modal-content {
+        height: 90vh;
+        max-height: 90vh;
+        overflow: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: #94a3b8 transparent;
+    }
+    .booking-modal-content::-webkit-scrollbar { width: 8px; }
+    .booking-modal-content::-webkit-scrollbar-thumb { border: 2px solid transparent; border-radius: 8px; background: #94a3b8; background-clip: padding-box; }
+    .booking-modal-content .modal-body {
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: #94a3b8 transparent;
+    }
+    .booking-doctor-avatar { position: relative; flex: 0 0 56px; overflow: hidden; }
+    .booking-doctor-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .empty-state-card {
         background: #f8fafc;
         border: 1px dashed rgba(148, 163, 184, 0.5);
@@ -811,11 +882,14 @@
     }
     @media (max-width: 991px) {
         .patient-shell {
-            flex-direction: column;
+            grid-template-columns: minmax(0, 1fr);
         }
         .patient-sidebar {
+            position: static;
             width: 100%;
+            height: auto;
         }
+        .patient-main { margin-left: 0; }
     }
     @media (max-width: 640px) {
         .patient-main {
@@ -823,8 +897,8 @@
         }
     }
     @media (min-width: 992px) {
-        .patient-shell.sidebar-collapsed .patient-sidebar { width: 76px; padding-right: 0.55rem; padding-left: 0.55rem; }
-        .patient-shell.sidebar-collapsed .patient-main { margin-left: 76px; }
+        .patient-shell.sidebar-collapsed { grid-template-columns: 76px minmax(0, 1fr); }
+        .patient-shell.sidebar-collapsed .patient-sidebar { width: 100%; padding-right: 0.55rem; padding-left: 0.55rem; }
         .patient-shell.sidebar-collapsed .patient-brand span,
         .patient-shell.sidebar-collapsed .patient-user > div { display: none; }
         .patient-shell.sidebar-collapsed .patient-brand,
@@ -843,14 +917,39 @@
         .patient-shell.sidebar-collapsed .patient-user { display: none; }
         .patient-shell.sidebar-collapsed .patient-sidebar-footer { margin: 0 0 0 auto; padding: 0; border: 0; }
     }
+    @media (min-width: 992px) {
+        html, body { width: 100%; height: 100%; overflow: hidden; }
+        .patient-dashboard-page { height: 100vh; min-height: 0; overflow: hidden; }
+        .patient-shell { height: 100vh; min-height: 0; overflow: hidden; }
+        .patient-sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; height: 100vh; }
+        .patient-main {
+            grid-column: 2;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            min-height: 0;
+            overflow: hidden;
+        }
+        .patient-main > .portal-flash-stack { flex: 0 0 auto; }
+        .patient-main > .portal-header { position: sticky; top: 0; z-index: 30; flex: 0 0 auto; }
+        .patient-main > .tab-content {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+        }
+        .patient-shell.sidebar-collapsed .patient-sidebar { width: 76px; }
+    }
 </style>
 
 <div class="patient-dashboard-page">
     <div class="patient-shell">
         <aside class="patient-sidebar">
             <div class="patient-brand">
-                <div class="brand-mark">H</div>
-                <span>FSUU Hospital</span>
+                <div class="brand-mark"><img src="{% get_static_prefix %}images/urios-crest.png" alt="Father Saturnino Urios University crest"></div>
+                <span>FSUU Clinic</span>
             </div>
 
             <nav class="patient-nav nav nav-pills flex-column" role="tablist" aria-label="Patient dashboard sections">
@@ -887,6 +986,7 @@
         </aside>
 
         <main class="patient-main">
+            {% include 'partials/flash_messages.html' %}
             {% include 'partials/portal_header.html' %}
 
             <div class="tab-content">
@@ -942,7 +1042,7 @@
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="fw-semibold">{{ upcoming_appointment.date }} at {{ upcoming_appointment.time }}</div>
-                                        <div class="text-muted">Clinic: FSUU Hospital</div>
+                                        <div class="text-muted">Location: FSUU Clinic</div>
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap">
                                         <a class="btn btn-outline-primary" href="{% url 'reschedule_appointment' upcoming_appointment.id %}">Reschedule</a>
@@ -1059,7 +1159,7 @@
                         </div>
                         <div class="doctor-directory-grid">
                             {% for doctor in doctors %}
-                            <article class="doctor-directory-card doctor-card-clickable" data-doctor-id="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-bio="{{ doctor.bio|default:'Experienced specialist devoted to patient care.'|escapejs }}" data-doctor-sex="{{ doctor.get_sex_display }}" data-doctor-search="{{ doctor.name|lower }} {{ doctor.specialty|lower }}" data-doctor-available="{{ doctor.available_today|yesno:'true,false' }}" data-doctor-fee="1000" data-doctor-experience="0" data-doctor-rating="0">
+                            <article class="doctor-directory-card doctor-card-clickable" data-doctor-id="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-bio="{{ doctor.bio|default:'Experienced specialist devoted to patient care.'|escapejs }}" data-doctor-sex="{{ doctor.get_sex_display }}" data-doctor-photo="{% if doctor.photo %}{{ doctor.photo.url }}{% endif %}" data-doctor-search="{{ doctor.name|lower }} {{ doctor.specialty|lower }}" data-doctor-available="{{ doctor.available_today|yesno:'true,false' }}" data-doctor-fee="1000" data-doctor-experience="0" data-doctor-rating="0">
                                 <div class="doctor-photo-box">
                                     {% if doctor.photo %}
                                         <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
@@ -1082,7 +1182,7 @@
                                     </div>
                                     <div class="doctor-directory-footer">
                                         <span class="doctor-starting-price">Starting at ₱1,000</span>
-                                        <button type="button" class="doctor-book-btn" data-book-doctor="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}">
+                                        <button type="button" class="doctor-book-btn" data-book-doctor="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-photo="{% if doctor.photo %}{{ doctor.photo.url }}{% endif %}">
                                             <i class="bi bi-calendar2-check me-1"></i>Book Now
                                         </button>
                                     </div>
@@ -1164,9 +1264,9 @@
                 <section id="profile-tab" class="tab-pane fade" role="tabpanel">
                     <div class="section-card">
                         <h5>My profile</h5>
-                        <form method="post" action="{% url 'profile_update' %}" enctype="multipart/form-data">
+                        <form method="post" action="{% url 'profile_update' %}" enctype="multipart/form-data" class="profile-edit-form">
                             {% csrf_token %}
-                            <div class="mb-3 p-3 border rounded bg-light">
+                            <div class="mb-3 p-3 border rounded profile-photo-upload">
                                 <label class="form-label fw-semibold">Profile photo</label>
                                 <div class="d-flex align-items-center gap-3 flex-wrap">
                                     {% if request.user.photo %}
@@ -1258,15 +1358,15 @@
 </div>
 
 <div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg booking-modal-content">
             <div class="modal-header border-0 pb-2">
                 <h5 class="modal-title fw-bold" id="bookingModalLabel">Book Appointment with Dr. <span id="modalDoctorName">Doctor</span></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 pt-2">
                 <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-4">
-                    <div class="doctor-avatar" id="modalDoctorAvatar" style="width: 56px; height: 56px; font-size: 1.2rem;">D</div>
+                    <div class="doctor-avatar booking-doctor-avatar" id="modalDoctorAvatar" style="width: 56px; height: 56px; margin-bottom: 0; font-size: 1.2rem;">D</div>
                     <div>
                         <div class="fw-bold fs-5" id="modalDoctorNameInline">Doctor Name</div>
                         <div class="d-flex align-items-center gap-2 mt-1">
@@ -1301,11 +1401,17 @@
                         <label for="bookingVisitType" class="form-label fw-semibold">Primary visit type</label>
                         <select id="bookingVisitType" name="visit_type" class="form-select">
                             <option value="">Select a visit type</option>
-                            <option value="General Consultation">General Consultation</option>
+                            <option value="First-time Consultation">First-time Consultation</option>
                             <option value="Follow-up Visit">Follow-up Visit</option>
-                            <option value="Acute Symptoms / Fever">Acute Symptoms / Fever</option>
-                            <option value="Routine Examination">Routine Examination</option>
+                            <option value="Routine Checkup">Routine Checkup</option>
+                            <option value="Lab Test / Results Review">Lab Test / Results Review</option>
+                            <option value="Other">Other</option>
                         </select>
+                    </div>
+
+                    <div class="mb-3" id="otherVisitTypeGroup" hidden>
+                        <label for="otherVisitType" class="form-label fw-semibold">Please specify visit type</label>
+                        <input id="otherVisitType" name="visit_type_other" type="text" class="form-control" placeholder="e.g., Medical Certificate, Pre-employment clearance..." maxlength="120">
                     </div>
 
                     <div class="mb-3">
@@ -1407,6 +1513,9 @@
         const slotContainer = document.getElementById('slotContainer');
         const bookingForm = document.getElementById('bookingForm');
         const bookSlotButton = document.getElementById('bookSlotButton');
+        const bookingVisitType = document.getElementById('bookingVisitType');
+        const otherVisitTypeGroup = document.getElementById('otherVisitTypeGroup');
+        const otherVisitType = document.getElementById('otherVisitType');
 
         let activeDoctorId = null;
         let activeDate = null;
@@ -1414,7 +1523,7 @@
         let currentModal = null;
         let currentDetailModal = null;
 
-        function openDoctorDetails(doctorId, doctorName, doctorSpecialty, doctorBio, doctorSex) {
+        function openDoctorDetails(doctorId, doctorName, doctorSpecialty, doctorBio, doctorSex, doctorPhoto) {
             activeDoctorId = doctorId;
             detailDoctorName.textContent = doctorName;
             detailDoctorSpecialty.textContent = doctorSpecialty;
@@ -1425,7 +1534,7 @@
                 if (currentDetailModal) {
                     currentDetailModal.hide();
                 }
-                openBookingModal(doctorId, doctorName, doctorSpecialty);
+                openBookingModal(doctorId, doctorName, doctorSpecialty, doctorPhoto);
             };
             if (!currentDetailModal) {
                 currentDetailModal = new bootstrap.Modal(doctorDetailModal);
@@ -1433,14 +1542,27 @@
             currentDetailModal.show();
         }
 
-        function openBookingModal(doctorId, doctorName, doctorSpecialty) {
+        function openBookingModal(doctorId, doctorName, doctorSpecialty, doctorPhoto) {
             activeDoctorId = doctorId;
             activeSlot = null;
             modalDoctorName.textContent = doctorName.replace('Dr. ', '');
             modalDoctorNameInline.textContent = doctorName;
             modalDoctorSpecialty.textContent = doctorSpecialty;
-            modalDoctorAvatar.textContent = doctorName.charAt(0).toUpperCase();
+            const fallback = document.createElement('span');
+            fallback.textContent = doctorName.charAt(0).toUpperCase();
+            modalDoctorAvatar.replaceChildren(fallback);
+            if (doctorPhoto) {
+                const image = document.createElement('img');
+                image.src = doctorPhoto;
+                image.alt = doctorName;
+                image.onerror = function () { image.remove(); };
+                modalDoctorAvatar.appendChild(image);
+            }
             modalDoctorId.value = doctorId;
+            bookingVisitType.value = '';
+            otherVisitType.value = '';
+            otherVisitType.required = false;
+            otherVisitTypeGroup.hidden = true;
             modalSelectedDate.value = '';
             modalSelectedTime.value = '';
             bookSlotButton.disabled = true;
@@ -1464,6 +1586,13 @@
             renderDateOptions(dates, dates[0]);
             loadSlotsForDate(doctorId, toISODate(dates[0]));
         }
+
+        bookingVisitType.addEventListener('change', function () {
+            const isOther = bookingVisitType.value === 'Other';
+            otherVisitTypeGroup.hidden = !isOther;
+            otherVisitType.required = isOther;
+            if (!isOther) otherVisitType.value = '';
+        });
 
         function renderDateOptions(dates, selectedDateValue) {
             dateSelector.innerHTML = '';
@@ -1509,13 +1638,13 @@
                 const data = await response.json();
 
                 if (!data.slots || data.slots.length === 0) {
-                    slotContainer.innerHTML = '<div class="empty-state-card text-center p-4"><div class="fs-3 mb-2">📅</div><div class="fw-semibold">No available slots for this date. Please select another date.</div></div>';
+                    slotContainer.innerHTML = '<div class="empty-state-card text-center p-4"><div class="fs-3 mb-2 text-primary"><i class="bi bi-calendar3" aria-hidden="true"></i></div><div class="fw-semibold">No available slots for this date. Please select another date.</div></div>';
                     return;
                 }
 
                 renderSlots(data.slots);
             } catch (error) {
-                slotContainer.innerHTML = '<div class="empty-state-card text-center p-4"><div class="fs-3 mb-2">⚠️</div><div class="fw-semibold">Unable to load slots right now. Please try another date.</div></div>';
+                slotContainer.innerHTML = '<div class="empty-state-card text-center p-4"><div class="fs-3 mb-2 text-warning"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></div><div class="fw-semibold">Unable to load slots right now. Please try another date.</div></div>';
             }
         }
 
@@ -1596,7 +1725,8 @@
                     card.getAttribute('data-doctor-name'),
                     card.getAttribute('data-doctor-specialty'),
                     card.getAttribute('data-doctor-bio'),
-                    card.getAttribute('data-doctor-sex')
+                    card.getAttribute('data-doctor-sex'),
+                    card.getAttribute('data-doctor-photo')
                 );
             });
         });
@@ -1607,7 +1737,8 @@
                 openBookingModal(
                     this.getAttribute('data-book-doctor'),
                     this.getAttribute('data-doctor-name'),
-                    this.getAttribute('data-doctor-specialty')
+                    this.getAttribute('data-doctor-specialty'),
+                    this.getAttribute('data-doctor-photo')
                 );
             });
         });
@@ -1619,7 +1750,8 @@
                     this.getAttribute('data-doctor-name'),
                     this.getAttribute('data-doctor-specialty'),
                     this.getAttribute('data-doctor-bio'),
-                    this.getAttribute('data-doctor-sex')
+                    this.getAttribute('data-doctor-sex'),
+                    this.getAttribute('data-doctor-photo')
                 );
             });
         });

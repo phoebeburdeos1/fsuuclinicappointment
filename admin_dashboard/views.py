@@ -312,7 +312,7 @@ def delete_doctor(request, pk):
     doctor.is_archived = True
     doctor.archived_at = timezone.now()
     doctor.save(update_fields=['is_archived', 'archived_at'])
-    messages.success(request, f'{doctor.name} has been archived.')
+    messages.success(request, 'Doctor profile archived successfully.')
     return redirect('admin_dashboard')
 
 
@@ -337,7 +337,7 @@ def archive_appointment(request, pk):
     )
     appointment.is_archived = True
     appointment.save(update_fields=['is_archived', 'updated_at'])
-    messages.success(request, 'Appointment record archived.')
+    messages.success(request, 'Appointment record archived successfully.')
     return redirect(reverse('admin_dashboard') + '?tab=appointments')
 
 
