@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .staff-dashboard-page {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    min-height: 100vh;
+    background: #f8fafc;
+  }
+  .staff-shell {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+  }
+  .staff-sidebar {
+    width: 260px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    color: #e2e8f0;
+    padding: 1.2rem 0.9rem;
+    flex-shrink: 0;
+  }
+  .staff-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.3rem;
+    font-weight: 800;
+    padding: 0.5rem 0.6rem 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.21);
+    margin-bottom: 1rem;
+  }
+  .brand-mark {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+  }
+  .staff-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    color: rgba(226, 232, 240, 0.84);
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 0.3rem;
+  }
+  .staff-nav a.active, .staff-nav a:hover {
+    background: rgba(59, 130, 246, 0.18);
+    color: #fff;
+  }
+  .staff-main {
+    flex: 1;
+    padding: 1.4rem 1.5rem 2rem;
+    min-width: 0;
+  }
+  .staff-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+    padding-bottom: 1rem;
+  }
+  .staff-topbar h2 {
+    margin: 0;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+  .metric-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.1rem;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    height: 100%;
+  }
+  .metric-card .label {
+    color: #64748b;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .metric-card .value {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    margin-top: 0.4rem;
+  }
+  .queue-table, .inventory-alert {
+    background: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
+  }
+  .inventory-alert {
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-color: rgba(251, 146, 60, 0.2);
+    padding: 1.1rem;
+  }
+  .badge-stock {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.38rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .badge-in { background: #dcfce7; color: #166534; }
+  .badge-low { background: #fef3c7; color: #92400e; }
+  .badge-out { background: #fee2e2; color: #991b1b; }
+  .consultation-modal .modal-content {
+    border: none;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  }
+  .consultation-modal .modal-header {
+    background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.12);
+    padding: 1.2rem 1.2rem 1rem;
+  }
+  .consultation-modal .modal-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .consultation-modal .title-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+  }
+  .consultation-modal .modal-body {
+    background: #f8fafc;
+    padding: 1rem 1.2rem 0.8rem;
+  }
+  .consultation-modal .info-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+  .consultation-modal .info-pill {
+    background: #fff;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    font-size: 0.8rem;
+    color: #475569;
+    font-weight: 600;
+  }
+  .consultation-modal .section-label {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+  }
+  .consultation-modal textarea,
+  .consultation-modal select,
+  .consultation-modal input {
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    box-shadow: none;
+  }
+  .consultation-modal textarea:focus,
+  .consultation-modal select:focus,
+  .consultation-modal input:focus {
+    border-color: rgba(59, 130, 246, 0.7);
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.12);
+  }
+  .consultation-modal .modal-footer {
+    background: #fff;
+    border-top: 1px solid rgba(148, 163, 184, 0.16);
+    padding: 0.9rem 1.2rem 1.2rem;
+  }
+  .consultation-modal .btn-primary {
+    border-radius: 12px;
+    min-width: 170px;
+  }
+  @media (min-width: 992px) {
+    .staff-shell.sidebar-collapsed .staff-sidebar { width: 76px; padding-right: 0.55rem; padding-left: 0.55rem; }
+    .staff-shell.sidebar-collapsed .staff-brand span { display: none; }
+    .staff-shell.sidebar-collapsed .staff-brand,
+    .staff-shell.sidebar-collapsed .staff-nav a { justify-content: center; }
+    .staff-shell.sidebar-collapsed .staff-nav a { gap: 0; overflow: hidden; font-size: 0; padding-right: 0.55rem; padding-left: 0.55rem; }
+    .staff-shell.sidebar-collapsed .staff-nav a i { font-size: 1.1rem; }
+  }
+  @media (max-width: 991px) {
+    .staff-shell.sidebar-collapsed .staff-sidebar { display: flex; width: 100%; min-height: 0; flex-direction: row; align-items: center; padding: 0.4rem 0.7rem; }
+    .staff-shell.sidebar-collapsed .staff-brand,
+    .staff-shell.sidebar-collapsed .staff-nav { display: none; }
+    .staff-shell.sidebar-collapsed .sidebar-collapse-control { margin: 0 0 0 auto; }
+  }
+  .sidebar-collapse-control { display: flex; justify-content: flex-end; margin: 0.75rem 0; }
+  .staff-sidebar .sidebar-collapse-control { margin-top: auto; }
+  @media (min-width: 992px) { .staff-shell.sidebar-collapsed .sidebar-collapse-control { justify-content: center; } }
+</style>
+
+<div class="staff-dashboard-page">
+  <div class="staff-shell">
+    <aside class="staff-sidebar">
+      <div class="staff-brand">
+        <div class="brand-mark"><i class="bi bi-hospital"></i></div>
+        <span>Clinic Staff</span>
+      </div>
+
+      <nav class="staff-nav">
+        <a class="active" href="{% url 'staff_dashboard' %}"><i class="bi bi-house-door"></i> Home</a>
+        <a href="{% url 'admin_dashboard' %}"><i class="bi bi-calendar-event"></i> Appointments</a>
+        <a href="{% url 'inventory' %}"><i class="bi bi-box-seam"></i> Inventory</a>
+        <a href="#"><i class="bi bi-calendar3"></i> Schedules</a>
+        <a href="#" data-theme-toggle><i class="bi bi-moon-stars"></i> Dark/Light Mode</a>
+      </nav>
+      <div class="sidebar-collapse-control"><button class="portal-sidebar-toggle" type="button" data-sidebar-toggle aria-label="Collapse navigation" title="Collapse navigation" aria-expanded="true"><i class="bi bi-layout-sidebar-inset"></i></button></div>
+    </aside>
+
+    <main class="staff-main">
+      {% include 'partials/portal_header.html' %}
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="metric-card">
+            <div class="label">Today's Appointments</div>
+            <div class="value">{{ today_appointments_count }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="metric-card">
+            <div class="label">Patients Checked-In</div>
+            <div class="value">{{ checked_in_count }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="metric-card">
+            <div class="label">Low Stock Alerts</div>
+            <div class="value">{{ low_stock_count }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+          <div class="metric-card">
+            <div class="label">Unread Messages</div>
+            <div class="value">{{ unread_messages }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-xl-8">
+          <div class="queue-table p-3">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0 fw-bold">Today's Patient Queue</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Patient</th>
+                    <th>Time</th>
+                    <th>Doctor</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for appointment in today_appointments %}
+                  <tr>
+                    <td>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</td>
+                    <td>{{ appointment.time }}</td>
+                    <td>{{ appointment.doctor.name }}</td>
+                    <td>
+                      {% if appointment.status == 'CHECKED_IN' %}
+                        <span class="badge-stock bg-success">Checked In</span>
+                      {% elif appointment.status == 'COMPLETED' %}
+                        <span class="badge-stock bg-primary">Completed</span>
+                      {% elif appointment.status == 'CANCELLED' %}
+                        <span class="badge-stock bg-danger">Cancelled</span>
+                      {% else %}
+                        <span class="badge-stock bg-warning text-dark">Pending</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="btn-group btn-group-sm" role="group">
+                        <a class="btn btn-outline-success" href="{% url 'appointment_status_update' appointment.id %}" onclick="event.preventDefault(); fetch('{% url 'appointment_status_update' appointment.id %}', {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'status=CHECKED_IN'}).then(()=>location.reload());">Check In</a>
+                                                <button class="btn btn-outline-success" type="button" data-confirm data-confirm-type="info" data-confirm-title="Check In Patient?" data-confirm-message="Confirm that this patient has arrived for the appointment." data-confirm-text="Check In" data-confirm-fetch-url="{% url 'appointment_status_update' appointment.id %}" data-confirm-status="CHECKED_IN">Check In</button>
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#consultationModal{{ appointment.id }}">Complete Checkup</button>
+                        <a class="btn btn-outline-danger" href="{% url 'appointment_status_update' appointment.id %}" onclick="event.preventDefault(); fetch('{% url 'appointment_status_update' appointment.id %}', {method: 'POST', headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded'}, body: 'status=CANCELLED'}).then(()=>location.reload());">Cancel</a>
+                                              <button class="btn btn-outline-danger" type="button" data-confirm data-confirm-type="danger" data-confirm-title="Cancel Appointment?" data-confirm-message="Are you sure you want to cancel this appointment?" data-confirm-text="Cancel Appointment" data-confirm-fetch-url="{% url 'appointment_status_update' appointment.id %}" data-confirm-status="CANCELLED">Cancel</button>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center text-muted py-4">No patients scheduled today.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="inventory-alert">
+            <h5 class="fw-bold mb-3">Low Stock Quick Alert</h5>
+            {% for item in low_stock_items|slice:':5' %}
+              <div class="d-flex justify-content-between align-items-center py-2 border-bottom border-warning-subtle">
+                <div>
+                  <div class="fw-semibold">{{ item.name }}</div>
+                  <small class="text-muted">{{ item.category }}</small>
+                </div>
+                <div class="text-end">
+                  <div class="fw-bold">{{ item.quantity }}</div>
+                  <small class="text-muted">units left</small>
+                </div>
+              </div>
+            {% empty %}
+              <p class="mb-0 text-muted">No immediate stock concerns.</p>
+            {% endfor %}
+            <a class="btn btn-warning mt-3 w-100" href="{% url 'inventory' %}">Go to Inventory</a>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+{% for appointment in today_appointments %}
+<div class="modal fade consultation-modal" id="consultationModal{{ appointment.id }}" tabindex="-1" aria-labelledby="consultationModalLabel{{ appointment.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form method="post" action="{% url 'appointment_status_update' appointment.id %}">
+          <form method="post" action="{% url 'appointment_status_update' appointment.id %}" data-confirm-form data-confirm-type="info" data-confirm-title="Complete Appointment?" data-confirm-message="Save the consultation record and mark this appointment as Completed?" data-confirm-text="Complete Appointment">
+        {% csrf_token %}
+        <input type="hidden" name="status" value="COMPLETED">
+        <div class="modal-header">
+          <div class="modal-title-wrap w-100">
+            <div class="title-icon"><i class="bi bi-file-medical"></i></div>
+            <div>
+              <h5 class="modal-title mb-0" id="consultationModalLabel{{ appointment.id }}">Consultation record</h5>
+              <small class="text-muted">Complete the clinic visit summary</small>
+            </div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="info-strip">
+            <span class="info-pill"><strong>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</strong></span>
+            <span class="info-pill">{{ appointment.doctor.name }}</span>
+            <span class="info-pill">{{ appointment.date }} • {{ appointment.time }}</span>
+          </div>
+
+          <div class="mb-3">
+            <label class="section-label" for="diagnosis-{{ appointment.id }}">Medical summary</label>
+            <textarea class="form-control" id="diagnosis-{{ appointment.id }}" name="diagnosis" rows="5" placeholder="Document findings, assessment, treatment, and disposition..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="section-label">Medication prescribed</label>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-8">
+                <select class="form-select" name="medication_ids" multiple size="5">
+                  {% for item in medication_items %}
+                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} in stock)</option>
+                  {% empty %}
+                    <option disabled>No medication items available</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-4">
+                <input type="number" class="form-control" name="medication_quantities" min="1" value="1" placeholder="Qty">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="section-label">Supplies used</label>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-8">
+                <select class="form-select" name="supply_ids" multiple size="5">
+                  {% for item in consumable_items %}
+                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} in stock)</option>
+                  {% empty %}
+                    <option disabled>No supplies available</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-4">
+                <input type="number" class="form-control" name="supply_quantities" min="1" value="1" placeholder="Qty">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check-circle me-1"></i>Save &amp; Complete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}

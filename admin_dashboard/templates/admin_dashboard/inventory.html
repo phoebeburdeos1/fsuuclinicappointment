@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .inventory-page {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    min-height: 100vh;
+    background: #f8fafc;
+  }
+  .inventory-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+  .inventory-sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    color: #e2e8f0;
+    padding: 1.2rem 0.9rem;
+  }
+  .inventory-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 800;
+    padding: 0.5rem 0.6rem 1rem;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.21);
+    margin-bottom: 1rem;
+  }
+  .inventory-nav a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 10px;
+    color: rgba(226, 232, 240, 0.84);
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+  .inventory-nav a.active, .inventory-nav a:hover {
+    background: rgba(59, 130, 246, 0.18);
+    color: #fff;
+  }
+  .inventory-main {
+    flex: 1;
+    padding: 1.5rem;
+  }
+  .inventory-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+    padding: 1.2rem;
+  }
+  .stock-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.38rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  .bg-stock-in { background: #dcfce7; color: #166534; }
+  .bg-stock-low { background: #fef3c7; color: #92400e; }
+  .bg-stock-out { background: #fee2e2; color: #991b1b; }
+</style>
+
+<div class="inventory-page">
+  <div class="inventory-shell">
+    <aside class="inventory-sidebar">
+      <div class="inventory-brand">
+        <div class="brand-mark" style="width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);display:grid;place-items:center;font-size:1rem;">
+          <i class="bi bi-hospital"></i>
+        </div>
+        <span>Clinic Staff</span>
+      </div>
+
+      <nav class="inventory-nav">
+        <a href="{% url 'staff_dashboard' %}"><i class="bi bi-house-door"></i> Home</a>
+        <a href="{% url 'admin_dashboard' %}"><i class="bi bi-calendar-event"></i> Appointments</a>
+        <a class="active" href="{% url 'inventory' %}"><i class="bi bi-box-seam"></i> Inventory</a>
+        <a href="#"><i class="bi bi-calendar3"></i> Schedules</a>
+        <a href="{% url 'messages_page' %}"><i class="bi bi-chat-dots"></i> Messages</a>
+      </nav>
+    </aside>
+
+    <main class="inventory-main">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h2 class="fw-bold mb-0">Inventory Overview</h2>
+          <small class="text-muted">Manage stock, restocks, and item availability.</small>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addInventoryModal">Add Item</button>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <div class="col-12 col-md-4">
+          <div class="inventory-card">
+            <div class="text-muted small">Total Items</div>
+            <div class="display-6 fw-bold">{{ items|length }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="inventory-card">
+            <div class="text-muted small">Low Stock</div>
+            <div class="display-6 fw-bold">{{ low_stock_count }}</div>
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="inventory-card">
+            <div class="text-muted small">Out of Stock</div>
+            <div class="display-6 fw-bold">{{ items|length }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="inventory-card">
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Item Name</th>
+                <th>Category</th>
+                <th>Quantity in Stock</th>
+                <th>Unit Price / Cost</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in items %}
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.get_category_display }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>₱{{ item.unit_price }}</td>
+                <td>
+                  {% if item.quantity <= 0 %}
+                    <span class="stock-badge bg-stock-out">Out of Stock</span>
+                  {% elif item.quantity < 10 %}
+                    <span class="stock-badge bg-stock-low">Low Stock</span>
+                  {% else %}
+                    <span class="stock-badge bg-stock-in">In Stock</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <form method="post" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="add">
+                      <input type="hidden" name="item_id" value="{{ item.id }}">
+                      <input type="hidden" name="quantity" value="5">
+                      <button class="btn btn-sm btn-success" type="submit">+</button>
+                    </form>
+                    <form method="post" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="remove">
+                      <input type="hidden" name="item_id" value="{{ item.id }}">
+                      <input type="hidden" name="quantity" value="5">
+                      <button class="btn btn-sm btn-warning" type="submit">-</button>
+                    </form>
+                    <form method="post" class="d-inline" data-confirm-form data-confirm-type="danger" data-confirm-title="Delete Inventory Item?" data-confirm-message="Are you sure you want to remove this item from the inventory? This action cannot be undone." data-confirm-text="Delete Item">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="item_id" value="{{ item.id }}">
+                      <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted py-4">No inventory items yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div class="modal fade" id="addInventoryModal" tabindex="-1" aria-labelledby="addInventoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <form method="post">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="addInventoryModalLabel">Add Inventory Item</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Item Name</label>
+            <input type="text" class="form-control" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <select class="form-select" name="category">
+              <option value="MEDICATION">Medication</option>
+              <option value="CONSUMABLES">Consumables</option>
+              <option value="EQUIPMENT">Equipment</option>
+              <option value="GENERAL">General</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Quantity in Stock</label>
+            <input type="number" class="form-control" name="quantity" min="0" value="0">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Unit Price / Cost</label>
+            <input type="number" class="form-control" name="unit_price" min="0" step="0.01" value="0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

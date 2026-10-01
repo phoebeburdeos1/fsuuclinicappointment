@@ -2,7 +2,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from django.urls import reverse
 
-from accounts.models import User
+from accounts.models import Message, User
 
 
 class RoleLoginRedirectTests(TestCase):
@@ -60,7 +60,7 @@ class RoleLoginRedirectTests(TestCase):
         self.client.force_login(patient)
         response = self.client.get(reverse('landing_page'))
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'Messages')
+        self.assertNotContains(response, '>Messages</a>')
         self.assertNotContains(response, 'My Dashboard')
         self.assertNotContains(response, 'Logout')
 
@@ -103,6 +103,30 @@ class RoleLoginRedirectTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(patient.received_messages.filter(sender=admin).exists())
         self.assertEqual(patient.received_messages.count(), 1)
+
+    def test_notification_payload_returns_unread_badge_counts(self):
+        patient = User.objects.create_user(
+            username='patient_badges',
+            email='patient_badges@example.com',
+            password='StrongPass123',
+            role='PATIENT',
+        )
+        admin = User.objects.create_user(
+            username='admin_badges',
+            email='admin_badges@example.com',
+            password='StrongPass123',
+            role='ADMIN',
+            is_staff=True,
+            is_superuser=True,
+        )
+        Message.objects.create(sender=patient, recipient=admin, subject='Question', body='One unread message')
+
+        self.client.force_login(admin)
+        response = self.client.get(reverse('notification_payload'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['count'], 1)
+        self.assertEqual(response.json()['message_count'], 1)
 
     def test_messages_page_has_dashboard_sidebar_and_search_input(self):
         patient = User.objects.create_user(
@@ -147,3 +171,76 @@ class RoleLoginRedirectTests(TestCase):
         self.assertIn(patient.photo.url, response.content.decode())
         self.assertTrue(patient.photo.name)
         self.assertTrue(patient.photo.storage.exists(patient.photo.name))
+
+    def test_admin_patient_profile_inherits_dashboard_shell_and_has_back_actions(self):
+        admin = User.objects.create_user(
+            username='admin_profile_shell',
+            email='admin_profile_shell@fsuu.edu.ph',
+            password='password1234',
+            role='ADMIN',
+            is_staff=True,
+            is_superuser=True,
+        )
+        patient = User.objects.create_user(
+            username='patient_profile_shell',
+            email='patient_profile_shell@example.com',
+            password='StrongPass123',
+            role='PATIENT',
+        )
+
+        self.client.force_login(admin)
+        response = self.client.get(reverse('admin_patient_profile', args=[patient.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'history.back()')
+        self.assertNotContains(response, 'Send Message')
+        self.assertContains(response, 'Dashboard Home')
+        self.assertContains(response, 'patient-profile-shell')
+
+    def test_staff_and_admin_can_access_staff_dashboard(self):
+        staff = User.objects.create_user(
+            username='staff_user',
+            email='staff@example.com',
+            password='StrongPass123',
+            role='STAFF',
+            is_staff=True,
+        )
+        admin = User.objects.create_user(
+            username='admin_staff',
+            email='admin_staff@fsuu.edu.ph',
+            password='StrongPass123',
+            role='ADMIN',
+            is_staff=True,
+            is_superuser=True,
+        )
+
+        self.client.force_login(staff)
+        response = self.client.get(reverse('staff_dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Today\'s Patient Queue')
+
+        response = self.client.get(reverse('admin_dashboard'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Appointment timeline')
+
+        self.client.force_login(admin)
+        response = self.client.get(reverse('inventory'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Inventory Overview')
+
+    def test_patient_is_blocked_from_staff_dashboard_and_inventory(self):
+        patient = User.objects.create_user(
+            username='blocked_patient',
+            email='blocked_patient@example.com',
+            password='StrongPass123',
+            role='PATIENT',
+        )
+        self.client.force_login(patient)
+
+        response = self.client.get(reverse('staff_dashboard'), follow=True)
+        self.assertRedirects(response, reverse('patient_dashboard'))
+        self.assertContains(response, 'Access Restricted: Staff and Admin only.')
+
+        response = self.client.get(reverse('inventory'), follow=True)
+        self.assertRedirects(response, reverse('patient_dashboard'))
+        self.assertContains(response, 'Access Restricted: Staff and Admin only.')

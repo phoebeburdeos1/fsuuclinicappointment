@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% include 'partials/portal_header.html' %}
 <style>
     .modern-panel {
         background: #fff;
@@ -9,6 +10,67 @@
         border: 1px solid rgba(148, 163, 184, 0.12);
         padding: 1.5rem;
     }
+    .profile-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+    .profile-field label,
+    .profile-upload-label {
+        display: block;
+        margin-bottom: 0.4rem;
+        color: #475569;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+    .profile-field input,
+    .profile-field textarea,
+    .profile-upload input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        color: #334155;
+        background: #fff;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .profile-field input:focus,
+    .profile-field textarea:focus,
+    .profile-upload input:focus {
+        border-color: #38bdf8;
+        box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.14);
+        outline: 0;
+    }
+    .profile-upload {
+        padding: 1rem;
+        border: 1px dashed #bae6fd;
+        border-radius: 16px;
+        background: #f0f9ff;
+    }
+    .profile-dropzone {
+        display: flex;
+        min-height: 110px;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        padding: 1rem;
+        border: 1px dashed #7dd3fc;
+        border-radius: 14px;
+        color: #0369a1;
+        background: rgba(255, 255, 255, 0.72);
+        text-align: center;
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    .profile-dropzone:hover,
+    .profile-dropzone.is-dragging { border-color: #0284c7; background: #e0f2fe; }
+    .profile-dropzone i { font-size: 1.5rem; }
+    .profile-dropzone strong,
+    .profile-dropzone span { display: block; }
+    .profile-dropzone strong { font-size: 0.82rem; }
+    .profile-dropzone span { margin-top: 0.2rem; color: #64748b; font-size: 0.68rem; }
+    .profile-dropzone input { display: none; }
+    @media (max-width: 700px) { .profile-form-grid { grid-template-columns: 1fr; } }
 </style>
 
 <div class="modern-panel">
@@ -22,8 +84,88 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="profile-form-grid">
+            <div class="profile-field">
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+                {{ form.first_name.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+                {{ form.last_name.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {{ form.email.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.phone.label_tag }}
+                {{ form.phone }}
+                {{ form.phone.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.address.label_tag }}
+                {{ form.address }}
+                {{ form.address.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.height_cm.label_tag }}
+                {{ form.height_cm }}
+                {{ form.height_cm.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.weight_lbs.label_tag }}
+                {{ form.weight_lbs }}
+                {{ form.weight_lbs.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.pulse_bpm.label_tag }}
+                {{ form.pulse_bpm }}
+                {{ form.pulse_bpm.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.bmi.label_tag }}
+                {{ form.bmi }}
+                {{ form.bmi.errors }}
+            </div>
+            <div class="profile-field">
+                {{ form.temperature_c.label_tag }}
+                {{ form.temperature_c }}
+                {{ form.temperature_c.errors }}
+            </div>
+            <div class="profile-upload">
+                <label class="profile-upload-label">Profile photo</label>
+                <label class="profile-dropzone" for="{{ form.photo.id_for_label }}" data-upload-dropzone>
+                    <i class="bi bi-cloud-arrow-up"></i>
+                    <span><strong>Drop your photo here or click to browse</strong><span>PNG, JPG, or WEBP up to 5 MB</span></span>
+                    {{ form.photo }}
+                </label>
+                {{ form.photo.errors }}
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary">Save profile</button>
     </form>
 </div>
+<script>
+    document.querySelectorAll('[data-upload-dropzone]').forEach(function (dropzone) {
+        const input = dropzone.querySelector('input[type="file"]');
+        ['dragenter', 'dragover'].forEach(function (eventName) {
+            dropzone.addEventListener(eventName, function (event) {
+                event.preventDefault();
+                dropzone.classList.add('is-dragging');
+            });
+        });
+        ['dragleave', 'drop'].forEach(function (eventName) {
+            dropzone.addEventListener(eventName, function (event) {
+                event.preventDefault();
+                dropzone.classList.remove('is-dragging');
+            });
+        });
+        dropzone.addEventListener('drop', function (event) {
+            if (event.dataTransfer.files.length) input.files = event.dataTransfer.files;
+        });
+    });
+</script>
 {% endblock %}

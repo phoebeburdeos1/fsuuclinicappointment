@@ -4,6 +4,7 @@ from django.db import models
 
 class UserRole(models.TextChoices):
     ADMIN = 'ADMIN', 'Admin'
+    STAFF = 'STAFF', 'Staff'
     PATIENT = 'PATIENT', 'Patient'
 
 
@@ -12,6 +13,11 @@ class User(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, default='')
     address = models.TextField(blank=True, default='')
     photo = models.ImageField(upload_to='user_photos/', blank=True, null=True)
+    height_cm = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    weight_lbs = models.DecimalField(max_digits=5, decimal_places=1, null=True, blank=True)
+    pulse_bpm = models.PositiveIntegerField(null=True, blank=True)
+    bmi = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
+    temperature_c = models.DecimalField(max_digits=4, decimal_places=1, null=True, blank=True)
 
     def __str__(self):
         return f'{self.username} ({self.role})'

@@ -19,9 +19,13 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from admin_dashboard.views import inventory_view, staff_dashboard
+
 urlpatterns = [
     path('', include('accounts.urls')),
     path('admin-dashboard/', include('admin_dashboard.urls')),
+    path('staff-dashboard/', staff_dashboard, name='staff_dashboard'),
+    path('inventory/', inventory_view, name='inventory'),
     path('dashboard/', include('patient_dashboard.urls')),
     path('admin/', admin.site.urls),
 ]

@@ -102,6 +102,12 @@ class Appointment(models.Model):
     time = models.TimeField()
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     notes = models.TextField(blank=True)
+    medical_summary = models.TextField(blank=True, default='')
+    consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=1000.00)
+    medications_used = models.JSONField(default=list, blank=True)
+    supplies_used = models.JSONField(default=list, blank=True)
+    patient_archived = models.BooleanField(default=False)
+    is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -121,3 +127,48 @@ class Appointment(models.Model):
             now = datetime.now()
         appointment_dt = datetime.combine(self.date, self.time)
         return now + timedelta(hours=2) < appointment_dt
+
+
+class InventoryItem(models.Model):
+    class Category(models.TextChoices):
+        MEDICATION = 'MEDICATION', 'Medication'
+        CONSUMABLES = 'CONSUMABLES', 'Consumables'
+        EQUIPMENT = 'EQUIPMENT', 'Equipment'
+        GENERAL_ITEMS = 'GENERAL_ITEMS', 'General Items'
+
+    name = models.CharField(max_length=180)
+    category = models.CharField(max_length=30, choices=Category.choices, default=Category.GENERAL_ITEMS)
+    quantity = models.PositiveIntegerField(default=0)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return f'{self.name} ({self.quantity} in stock)'
+
+    @property
+    def stock_status(self):
+        if self.quantity == 0:
+            return 'Out of Stock'
+        if 1 <= self.quantity <= 10:
+            return 'Low Stock'
+        return 'In Stock'
+
+    @property
+    def stock_badge_class(self):
+        if self.quantity == 0:
+            return 'bg-danger'
+        if 1 <= self.quantity <= 10:
+            return 'bg-warning text-dark'
+        return 'bg-success'
+
+    @property
+    def is_low_stock(self):
+        return self.quantity <= 10 and self.quantity > 0
+
+    @property
+    def is_out_of_stock(self):
+        return self.quantity == 0

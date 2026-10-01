@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% include 'partials/portal_header.html' %}
 <div class="card p-4">
     <h3>Reschedule appointment</h3>
     <p><strong>Current slot:</strong> {{ appointment.doctor.name }} on {{ appointment.date }} at {{ appointment.time }}</p>

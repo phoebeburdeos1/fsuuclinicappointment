@@ -3,17 +3,36 @@
 {% block content %}
 <style>
     .admin-dashboard-page {
+        --dashboard-bg: #f8fafc;
+        --dashboard-panel: #ffffff;
+        --dashboard-panel-alt: #f8fafc;
+        --dashboard-text: #1f2a37;
+        --dashboard-heading: #0f172a;
+        --dashboard-muted: #64748b;
+        --dashboard-border: rgba(148, 163, 184, 0.18);
+    }
+    body[data-theme="dark"] .admin-dashboard-page {
+        --dashboard-bg: #0b1220;
+        --dashboard-panel: #111827;
+        --dashboard-panel-alt: #0f172a;
+        --dashboard-text: #e5edf8;
+        --dashboard-heading: #f8fafc;
+        --dashboard-muted: #a5b4c8;
+        --dashboard-border: rgba(148, 163, 184, 0.22);
+    }
+    .admin-dashboard-page {
         width: 100vw;
         margin-left: calc(50% - 50vw);
         margin-right: calc(50% - 50vw);
         min-height: 100vh;
-        background: #f8fafc;
+        background: var(--dashboard-bg);
+        color: var(--dashboard-text);
     }
     .admin-shell {
         display: flex;
         width: 100%;
         min-height: 100vh;
-        background: #f8fafc;
+        background: var(--dashboard-bg);
         overflow: hidden;
     }
     .admin-sidebar {
@@ -80,7 +99,7 @@
     }
     .helptext {
         display: block;
-        color: #64748b;
+        color: var(--dashboard-muted);
         font-size: 0.8rem;
         margin-top: 0.35rem;
     }
@@ -94,10 +113,154 @@
     .doctor-row-clickable:hover {
         background-color: rgba(59, 130, 246, 0.04);
     }
+    .doctor-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.35rem;
+        padding: 0.42rem 0.65rem;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        font-size: 0.72rem;
+        font-weight: 750;
+        text-decoration: none;
+        transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+    }
+    .doctor-action-btn:hover { transform: translateY(-1px); }
+    .doctor-action-btn.edit { color: #2563eb; background: #eff6ff; border-color: #dbeafe; }
+    .doctor-action-btn.edit:hover { background: #dbeafe; }
+    .doctor-action-btn.schedule { color: #059669; background: #ecfdf5; border-color: #d1fae5; }
+    .doctor-action-btn.schedule:hover { background: #d1fae5; }
+    .doctor-action-btn.archive { color: #e11d48; background: #fff1f2; border-color: #ffe4e6; }
+    .doctor-action-btn.archive:hover { background: #ffe4e6; }
+    body[data-theme="dark"] .doctor-action-btn.edit { color: #93c5fd; background: rgba(59, 130, 246, 0.14); border-color: rgba(59, 130, 246, 0.22); }
+    body[data-theme="dark"] .doctor-action-btn.schedule { color: #6ee7b7; background: rgba(16, 185, 129, 0.14); border-color: rgba(16, 185, 129, 0.22); }
+    body[data-theme="dark"] .doctor-action-btn.archive { color: #fda4af; background: rgba(244, 63, 94, 0.14); border-color: rgba(244, 63, 94, 0.22); }
     .modal-backdrop.show {
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
     }
+    .consultation-modal .modal-content {
+        border: none;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    }
+    .consultation-modal .modal-header {
+        background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.12);
+        padding: 1.2rem 1.2rem 1rem;
+    }
+    .consultation-modal .modal-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .consultation-modal .title-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 1.2rem;
+    }
+    .consultation-modal .modal-body {
+        background: #f8fafc;
+        padding: 1rem 1.2rem 0.8rem;
+    }
+    .consultation-modal .info-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+    }
+    .consultation-modal .info-pill {
+        background: #fff;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 999px;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.8rem;
+        color: #475569;
+        font-weight: 600;
+    }
+    .consultation-modal .section-label {
+        display: block;
+        font-size: 0.76rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+    .consultation-modal textarea,
+    .consultation-modal select,
+    .consultation-modal input {
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        box-shadow: none;
+    }
+    .consultation-modal textarea:focus,
+    .consultation-modal select:focus,
+    .consultation-modal input:focus {
+        border-color: rgba(59, 130, 246, 0.7);
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.12);
+    }
+    .consultation-modal .modal-footer {
+        background: #fff;
+        border-top: 1px solid rgba(148, 163, 184, 0.16);
+        padding: 0.9rem 1.2rem 1.2rem;
+    }
+    .consultation-modal .btn-primary {
+        border-radius: 12px;
+        min-width: 170px;
+    }
+    .doctor-detail-modal .modal-content {
+        overflow: hidden;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 24px;
+        background: var(--dashboard-panel);
+        color: var(--dashboard-text);
+        box-shadow: 0 28px 70px rgba(15, 23, 42, 0.24);
+    }
+    .doctor-detail-modal .modal-header {
+        padding: 1.1rem 1.25rem;
+        border-bottom: 1px solid var(--dashboard-border);
+        background: var(--dashboard-panel);
+    }
+    .doctor-detail-modal .modal-body { padding: 1.25rem; background: var(--dashboard-bg); }
+    .doctor-detail-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 18px;
+        background: var(--dashboard-panel);
+    }
+    .doctor-detail-avatar {
+        display: grid;
+        width: 76px;
+        height: 76px;
+        flex: 0 0 76px;
+        place-items: center;
+        overflow: hidden;
+        border: 3px solid var(--dashboard-panel);
+        border-radius: 50%;
+        color: #1d4ed8;
+        background: #dbeafe;
+        font-size: 1.4rem;
+        font-weight: 800;
+        box-shadow: 0 0 0 1px var(--dashboard-border);
+    }
+    .doctor-detail-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .doctor-detail-name { margin: 0; color: var(--dashboard-heading); font-size: 1.25rem; font-weight: 850; }
+    .doctor-detail-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+    .doctor-detail-tags .badge { padding: 0.38rem 0.62rem; border-radius: 999px; font-size: 0.68rem; }
+    .doctor-detail-bio { margin: 1rem 0 0; padding: 1rem; border: 1px solid var(--dashboard-border); border-radius: 16px; color: var(--dashboard-text); background: var(--dashboard-panel); font-size: 0.88rem; line-height: 1.65; }
+    .admin-summary-block { height: 100%; padding: 1rem; border: 1px solid var(--dashboard-border); border-radius: 16px; color: var(--dashboard-text); background: var(--dashboard-panel); }
+    .admin-summary-label { display: block; margin-bottom: 0.5rem; color: var(--dashboard-muted); font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
     .admin-sidebar-footer {
         margin-top: auto;
         border-top: 1px solid rgba(148, 163, 184, 0.25);
@@ -131,7 +294,7 @@
         flex: 1 1 auto;
         min-width: 0;
         overflow-x: hidden;
-        background: #f8fafc;
+        background: var(--dashboard-bg);
         padding: 0 1.15rem 1.6rem 1.15rem;
         margin-left: 260px;
         min-height: 100vh;
@@ -150,9 +313,10 @@
         font-size: clamp(1.7rem, 1.8vw, 2.1rem);
         letter-spacing: -0.05em;
         font-weight: 800;
+        color: var(--dashboard-heading);
     }
     .subtle {
-        color: #64748b;
+        color: var(--dashboard-muted);
         margin: 0;
     }
     .admin-section {
@@ -167,7 +331,8 @@
         to { opacity: 1; transform: translateY(0); }
     }
     .section-card {
-        background: #fff;
+        background: var(--dashboard-panel);
+        color: var(--dashboard-text);
         border-radius: 16px;
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
         border: 1px solid rgba(148, 163, 184, 0.12);
@@ -175,13 +340,345 @@
     }
     .section-card h5 {
         font-weight: 700;
+        color: var(--dashboard-heading);
         margin-bottom: 0.8rem;
+    }
+    .admin-dashboard-page .text-muted {
+        color: var(--dashboard-muted) !important;
+    }
+    .metric-card {
+        position: relative;
+        height: 100%;
+        padding: 1.15rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+    }
+    .metric-card .metric-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: rgba(59, 130, 246, 0.14);
+        color: #2563eb;
+        font-size: 1.05rem;
+    }
+    .metric-card .metric-label {
+        display: block;
+        padding-right: 3rem;
+        color: var(--dashboard-muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .metric-card .metric-value {
+        margin-top: 0.45rem;
+        color: var(--text-strong);
+        font-size: 1.85rem;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+    }
+    .filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+        padding: 1rem;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+    .filter-bar p,
+    .admin-form p {
+        margin: 0;
+    }
+    .filter-bar label,
+    .admin-form label {
+        display: block;
+        margin-bottom: 0.35rem;
+        color: var(--dashboard-muted);
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+    .filter-bar input,
+    .filter-bar select,
+    .admin-form input,
+    .admin-form select,
+    .admin-form textarea,
+    .admin-table select {
+        min-height: 42px;
+        padding: 0.65rem 0.85rem;
+        color: var(--dashboard-text);
+        background: var(--dashboard-panel-alt);
+        border: 1px solid var(--dashboard-border);
+        border-radius: 12px;
+        box-shadow: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .filter-bar input:focus,
+    .filter-bar select:focus,
+    .admin-form input:focus,
+    .admin-form select:focus,
+    .admin-form textarea:focus,
+    .admin-table select:focus {
+        border-color: #60a5fa;
+        box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.12);
+        outline: none;
+    }
+    .admin-table {
+        width: 100%;
+        margin-bottom: 0;
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+    }
+    .admin-table thead th {
+        padding: 0.25rem 0.9rem 0.4rem;
+        color: var(--dashboard-muted);
+        border: 0;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+    .admin-table tbody tr {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .admin-table tbody tr:hover {
+        transform: translateY(-1px);
+    }
+    .admin-table tbody td {
+        padding: 0.9rem;
+        color: var(--dashboard-text);
+        background: var(--dashboard-panel);
+        border-top: 1px solid var(--dashboard-border);
+        border-bottom: 1px solid var(--dashboard-border);
+        vertical-align: middle;
+    }
+    .admin-table tbody td:first-child {
+        border-left: 1px solid var(--dashboard-border);
+        border-radius: 14px 0 0 14px;
+    }
+    .admin-table tbody td:last-child {
+        border-right: 1px solid var(--dashboard-border);
+        border-radius: 0 14px 14px 0;
+    }
+    .patient-identity {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        min-width: 150px;
+    }
+    .initials-avatar {
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        display: grid;
+        place-items: center;
+        color: #1e40af;
+        background: #dbeafe;
+        border-radius: 50%;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+    .patient-identity strong {
+        display: block;
+        color: var(--dashboard-heading);
+        font-size: 0.88rem;
+    }
+    .patient-handle {
+        display: block;
+        margin-top: 0.1rem;
+        color: var(--dashboard-muted);
+        font-size: 0.72rem;
+    }
+    .table-action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        min-height: 34px;
+        padding: 0.4rem 0.7rem;
+        color: var(--dashboard-text);
+        background: var(--dashboard-panel-alt);
+        border: 1px solid var(--dashboard-border);
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-decoration: none;
+        transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .table-action:hover {
+        color: #1d4ed8;
+        background: #eff6ff;
+        border-color: #bfdbfe;
+    }
+    .admin-table .status-badge {
+        padding: 0.4rem 0.7rem;
+        font-size: 0.7rem;
+    }
+    body[data-theme="dark"] .metric-card .metric-icon,
+    body[data-theme="dark"] .initials-avatar {
+        background: rgba(59, 130, 246, 0.18);
+        color: #93c5fd;
+    }
+    body[data-theme="dark"] .filter-bar input,
+    body[data-theme="dark"] .filter-bar select,
+    body[data-theme="dark"] .admin-form input,
+    body[data-theme="dark"] .admin-form select,
+    body[data-theme="dark"] .admin-form textarea,
+    body[data-theme="dark"] .admin-table select,
+    body[data-theme="dark"] .table-action {
+        border-color: var(--dashboard-border);
+        background: var(--dashboard-panel-alt);
+        color: var(--dashboard-text);
     }
     .chart-wrap {
         position: relative;
         height: 300px;
         width: 100%;
     }
+    .analytics-chart-title { margin-bottom: 0.8rem; color: var(--dashboard-heading); font-size: 0.95rem; font-weight: 700; }
+    .availability-panel {
+        background: var(--dashboard-panel);
+        border: 1px solid var(--dashboard-border);
+        border-radius: 18px;
+        padding: 1rem;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+    .availability-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.9rem;
+    }
+    .availability-title {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        color: var(--dashboard-heading);
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+    .availability-title-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: #ecfdf5;
+        color: #059669;
+    }
+    .availability-filter {
+        border: 1px solid var(--dashboard-border);
+        border-radius: 10px;
+        padding: 0.35rem 0.7rem;
+        color: var(--dashboard-muted);
+        background: transparent;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: background 0.2s ease, color 0.2s ease;
+    }
+    .availability-filter:hover,
+    .availability-filter.active {
+        color: var(--dashboard-heading);
+        background: var(--dashboard-panel-alt);
+    }
+    .availability-list {
+        display: grid;
+        gap: 0.65rem;
+    }
+    .availability-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem;
+        border: 1px solid var(--dashboard-border);
+        border-radius: 16px;
+        background: var(--dashboard-panel-alt);
+        transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+    .availability-item:hover {
+        border-color: rgba(59, 130, 246, 0.35);
+        transform: translateY(-1px);
+    }
+    .availability-doctor {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+        min-width: 0;
+    }
+    .availability-avatar {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        display: grid;
+        place-items: center;
+        background: #dbeafe;
+        color: #1d4ed8;
+        font-size: 0.75rem;
+        font-weight: 800;
+    }
+    .availability-name {
+        overflow: hidden;
+        color: var(--dashboard-heading);
+        font-size: 0.84rem;
+        font-weight: 700;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .availability-specialty {
+        margin-top: 0.1rem;
+        color: var(--dashboard-muted);
+        font-size: 0.72rem;
+    }
+    .availability-status {
+        flex-shrink: 0;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+    }
+    .availability-status.available { background: #ecfdf5; color: #059669; }
+    .availability-status.in-session { background: #fffbeb; color: #d97706; }
+    .availability-status.off { background: #fff1f2; color: #e11d48; }
+    body[data-theme="dark"] .availability-title-icon,
+    body[data-theme="dark"] .availability-status.available { background: rgba(16, 185, 129, 0.16); color: #6ee7b7; }
+    body[data-theme="dark"] .availability-status.in-session { background: rgba(245, 158, 11, 0.16); color: #fcd34d; }
+    body[data-theme="dark"] .availability-status.off { background: rgba(244, 63, 94, 0.16); color: #fda4af; }
+    .settings-subnav { display: flex; gap: 0.4rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--dashboard-border); }
+    .settings-tab { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.7rem 1rem; border: 0; border-bottom: 2px solid transparent; color: var(--dashboard-muted); background: transparent; font-size: 0.82rem; font-weight: 700; transition: color 0.18s ease, border-color 0.18s ease; }
+    .settings-tab:hover { color: var(--dashboard-heading); }
+    .settings-tab.active { color: #2563eb; border-bottom-color: #2563eb; }
+    .settings-pane[hidden] { display: none !important; }
+    .settings-inventory-search { max-width: 340px; }
+    .settings-profile-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    .settings-profile-grid label { display: block; margin-bottom: 0.35rem; color: var(--dashboard-muted); font-size: 0.75rem; font-weight: 700; }
+    .settings-profile-grid input { width: 100%; min-height: 44px; padding: 0.7rem 0.85rem; border: 1px solid var(--dashboard-border); border-radius: 12px; color: var(--dashboard-text); background: var(--dashboard-panel-alt); }
+    .settings-upload { padding: 0.9rem; border: 1px dashed var(--dashboard-border); border-radius: 14px; background: var(--dashboard-panel-alt); }
+    .settings-password-panel { max-width: 620px; }
+    .appointment-status-tabs { display:flex; gap:0.35rem; overflow-x:auto; margin-bottom:1rem; padding-bottom:0.55rem; border-bottom:1px solid var(--dashboard-border); }
+    .appointment-status-tab { flex:0 0 auto; padding:0.55rem 0.8rem; border:1px solid transparent; border-radius:10px; color:var(--dashboard-muted); background:transparent; font-size:0.76rem; font-weight:700; white-space:nowrap; transition:color .15s ease, background .15s ease, border-color .15s ease; }
+    .appointment-status-tab:hover { color:var(--dashboard-heading); background:var(--dashboard-panel-alt); }
+    .appointment-status-tab.active { color:#2563eb; background:#eff6ff; border-color:#dbeafe; }
+    body[data-theme="dark"] .appointment-status-tab.active { color:#93c5fd; background:rgba(59,130,246,.16); border-color:rgba(59,130,246,.25); }
+    @media (max-width: 640px) { .settings-profile-grid { grid-template-columns: 1fr; } .settings-subnav { overflow-x: auto; } }
     .activity-list {
         list-style: none;
         padding: 0;
@@ -218,12 +715,23 @@
     .bg-status-completed { background: #e0e7ff; color: #4338ca; }
     .bg-status-cancelled { background: #fee2e2; color: #991b1b; }
     .bg-status-no-show { background: #fce7f3; color: #9d174d; }
+    body[data-theme="dark"] .bg-status-pending { background: rgba(234, 179, 8, 0.18); color: #fde68a; }
+    body[data-theme="dark"] .bg-status-confirmed { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+    body[data-theme="dark"] .bg-status-checked-in { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; }
+    body[data-theme="dark"] .bg-status-completed { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; }
+    body[data-theme="dark"] .bg-status-cancelled,
+    body[data-theme="dark"] .bg-status-no-show { background: rgba(244, 63, 94, 0.18); color: #fda4af; }
     @media (max-width: 991px) {
         .admin-shell {
             flex-direction: column;
         }
         .admin-sidebar {
+            position: static;
             width: 100%;
+            height: auto;
+        }
+        .admin-main {
+            margin-left: 0;
         }
     }
     @media (max-width: 640px) {
@@ -231,6 +739,35 @@
             padding: 1rem;
         }
     }
+    @media (min-width: 992px) {
+        .admin-shell.sidebar-collapsed .admin-sidebar { width: 76px; padding-right: 0.55rem; padding-left: 0.55rem; }
+        .admin-shell.sidebar-collapsed .admin-main { margin-left: 76px; }
+        .admin-shell.sidebar-collapsed .admin-brand span,
+        .admin-shell.sidebar-collapsed .admin-user > div { display: none; }
+        .admin-shell.sidebar-collapsed .admin-brand,
+        .admin-shell.sidebar-collapsed .admin-sidebar-footer,
+        .admin-shell.sidebar-collapsed .admin-nav .nav-link { justify-content: center; }
+        .admin-shell.sidebar-collapsed .admin-nav .nav-link { gap: 0; overflow: hidden; font-size: 0; padding-right: 0.55rem; padding-left: 0.55rem; }
+        .admin-shell.sidebar-collapsed .admin-nav .nav-link i { font-size: 1.1rem; }
+    }
+    .admin-sidebar .sidebar-collapse-control { margin-top: auto; }
+    .admin-sidebar .admin-sidebar-footer { margin-top: 0; }
+    @media (max-width: 991px) {
+        .admin-shell.sidebar-collapsed .admin-sidebar { display: flex; position: static; width: 100%; height: auto; min-height: 0; flex-direction: row; align-items: center; padding: 0.4rem 0.7rem; }
+        .admin-shell.sidebar-collapsed .admin-main { margin-left: 0; }
+        .admin-shell.sidebar-collapsed .admin-brand,
+        .admin-shell.sidebar-collapsed .admin-nav,
+        .admin-shell.sidebar-collapsed .admin-user { display: none; }
+        .admin-shell.sidebar-collapsed .admin-sidebar-footer { margin: 0 0 0 auto; padding: 0; border: 0; }
+    }
+    .schedule-day-options { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .schedule-day-pill { position: relative; cursor: pointer; }
+    .schedule-day-pill input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    .schedule-day-pill span { display: grid; min-width: 2.8rem; min-height: 2.5rem; place-items: center; padding: 0.35rem 0.65rem; border: 1px solid var(--border); border-radius: 8px; color: var(--text); background: var(--card-alt); font-size: 0.82rem; font-weight: 700; }
+    .schedule-day-pill input:checked + span { border-color: var(--accent); color: #fff; background: var(--accent); }
+    .schedule-day-pill input:focus-visible + span { outline: 3px solid rgba(13, 110, 253, 0.28); outline-offset: 2px; }
+    .btn-blocked-slot { color: #fff; background: #b45309; border-color: #b45309; }
+    .btn-blocked-slot:hover { color: #fff; background: #92400e; border-color: #92400e; }
 </style>
 
 <div class="admin-dashboard-page">
@@ -242,25 +779,44 @@
             </div>
 
             <nav class="admin-nav nav nav-pills flex-column" role="tablist" aria-label="Admin dashboard sections">
-                <button class="nav-link active" type="button" data-bs-toggle="tab" data-bs-target="#overview-tab">
+                {% if settings_page %}
+                <a class="nav-link" href="{% url 'admin_dashboard' %}?tab=overview">
+                    <i class="bi bi-bar-chart-line"></i> Overview
+                </a>
+                <a class="nav-link" href="{% url 'admin_dashboard' %}?tab=appointments">
+                    <i class="bi bi-calendar-event"></i> Appointments
+                </a>
+                {% else %}
+                <button class="nav-link{% if not settings_page %} active{% endif %}" type="button" data-bs-toggle="tab" data-bs-target="#overview-tab">
                     <i class="bi bi-bar-chart-line"></i> Overview
                 </button>
                 <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#appointments-tab">
                     <i class="bi bi-calendar-event"></i> Appointments
                 </button>
+                {% endif %}
+                {% if request.user.role == 'ADMIN' %}
+                    {% if settings_page %}
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}?tab=doctors">
+                        <i class="bi bi-people"></i> Doctors
+                    </a>
+                    <a class="nav-link" href="{% url 'admin_dashboard' %}?tab=schedules">
+                        <i class="bi bi-clock-history"></i> Schedules
+                    </a>
+                    {% else %}
                 <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#doctors-tab">
                     <i class="bi bi-people"></i> Doctors
                 </button>
                 <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#schedules-tab">
                     <i class="bi bi-clock-history"></i> Schedules
                 </button>
-                <button class="nav-link" type="button" data-bs-toggle="tab" data-bs-target="#archived-tab">
-                    <i class="bi bi-archive"></i> Archive
-                </button>
-                <a class="nav-link" href="{% url 'messages_page' %}">
-                    <i class="bi bi-chat-dots"></i> Messages
+                    {% endif %}
+                {% endif %}
+                <a class="nav-link{% if settings_page %} active{% endif %}" href="{% url 'admin_settings' %}">
+                    <i class="bi bi-gear"></i> Settings
                 </a>
             </nav>
+
+            <div class="sidebar-collapse-control"><button class="portal-sidebar-toggle" type="button" data-sidebar-toggle aria-label="Collapse navigation" title="Collapse navigation" aria-expanded="true"><i class="bi bi-layout-sidebar-inset"></i></button></div>
 
             <div class="admin-sidebar-footer">
                 <div class="admin-user">
@@ -275,57 +831,95 @@
         </aside>
 
         <main class="admin-main">
-            <div class="admin-topbar">
-                <div class="admin-greeting">
-                    <h2>Welcome back, {{ request.user.username }}!</h2>
-                    <p class="subtle">Clinic operations overview</p>
-                </div>
-                <a class="btn btn-primary" href="{% url 'landing_page' %}" target="_blank" rel="noreferrer">View Public Site</a>
-            </div>
+            {% include 'partials/portal_header.html' %}
 
             <div class="tab-content">
-                <section id="overview-tab" class="admin-section active tab-pane fade show" role="tabpanel">
+                {% if not settings_page %}
+                <section id="overview-tab" class="admin-section{% if not settings_page %} active show{% endif %} tab-pane fade" role="tabpanel">
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-md-6 col-lg-3">
-                            <div class="section-card h-100">
-                                <div class="text-muted small">Total appointments</div>
-                                <div class="display-6 fw-bold">{{ total_appointments }}</div>
+                            <div class="metric-card">
+                                <span class="metric-icon"><i class="bi bi-calendar2-check"></i></span>
+                                <span class="metric-label">Total appointments</span>
+                                <div class="metric-value">{{ total_appointments }}</div>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
-                            <div class="section-card h-100">
-                                <div class="text-muted small">No-show rate</div>
-                                <div class="display-6 fw-bold">{{ no_show_rate }}%</div>
+                            <div class="metric-card">
+                                <span class="metric-icon"><i class="bi bi-activity"></i></span>
+                                <span class="metric-label">No-show rate</span>
+                                <div class="metric-value">{{ no_show_rate }}%</div>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
-                            <div class="section-card h-100">
-                                <div class="text-muted small">Doctors</div>
-                                <div class="display-6 fw-bold">{{ doctors|length }}</div>
+                            <div class="metric-card">
+                                <span class="metric-icon"><i class="bi bi-person-badge"></i></span>
+                                <span class="metric-label">Doctors</span>
+                                <div class="metric-value">{{ doctors|length }}</div>
                             </div>
                         </div>
                         <div class="col-12 col-md-6 col-lg-3">
-                            <div class="section-card h-100">
-                                <div class="text-muted small">Schedules</div>
-                                <div class="display-6 fw-bold">{{ schedules|length }}</div>
+                            <div class="metric-card">
+                                <span class="metric-icon"><i class="bi bi-clock-history"></i></span>
+                                <span class="metric-label">Schedules</span>
+                                <div class="metric-value">{{ schedules|length }}</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-3 mb-3 align-items-stretch">
-                        <div class="col-12 col-lg-6 d-flex">
+                        <div class="col-12 col-lg-4 d-flex">
                             <div class="section-card h-100 w-100">
-                                <h5>Appointments per doctor</h5>
+                                <h5 class="analytics-chart-title">Appointments per doctor</h5>
                                 <div class="chart-wrap">
                                     <canvas id="doctorChart"></canvas>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-lg-6 d-flex">
+                        <div class="col-12 col-lg-4 d-flex">
                             <div class="section-card h-100 w-100">
-                                <h5>Daily booking volume</h5>
+                                <h5 class="analytics-chart-title">Daily booking volume</h5>
                                 <div class="chart-wrap">
                                     <canvas id="dailyChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-lg-4 d-flex">
+                            <div class="availability-panel h-100 w-100">
+                                <div class="availability-header">
+                                    <div class="availability-title">
+                                        <span class="availability-title-icon"><i class="bi bi-heart-pulse"></i></span>
+                                        <span>Doctor Availability</span>
+                                    </div>
+                                    <button class="availability-filter" type="button" data-availability-filter>
+                                        <i class="bi bi-funnel me-1"></i>Filter
+                                    </button>
+                                </div>
+                                <div class="availability-list">
+                                    {% for item in doctor_availability %}
+                                        <div class="availability-item" data-availability-status="{{ item.status|lower|cut:' ' }}">
+                                            <div class="availability-doctor">
+                                                {% if item.doctor.photo %}
+                                                    <img class="availability-avatar" src="{{ item.doctor.photo.url }}" alt="{{ item.doctor.name }}">
+                                                {% else %}
+                                                    <span class="availability-avatar">{{ item.doctor.name|slice:':2'|upper }}</span>
+                                                {% endif %}
+                                                <div class="min-w-0">
+                                                    <div class="availability-name">{{ item.doctor.name }}</div>
+                                                    <div class="availability-specialty">{{ item.doctor.specialty }}</div>
+                                                </div>
+                                            </div>
+                                            {% if item.status == 'In Session' %}
+                                                <span class="availability-status in-session">In Session</span>
+                                            {% elif item.status == 'Available' %}
+                                                <span class="availability-status available">Available</span>
+                                            {% else %}
+                                                <span class="availability-status off">Off</span>
+                                            {% endif %}
+                                        </div>
+                                    {% empty %}
+                                        <div class="text-muted small">No active doctors found.</div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -334,7 +928,7 @@
                     <div class="section-card">
                         <h5>Recent activity</h5>
                         <div class="table-responsive">
-                            <table class="table table-striped align-middle mb-0">
+                            <table class="table admin-table align-middle">
                                 <thead>
                                     <tr>
                                         <th>Patient</th>
@@ -347,7 +941,12 @@
                                 <tbody>
                                     {% for appointment in appointments|slice:':8' %}
                                     <tr>
-                                        <td>{{ appointment.patient.username }}</td>
+                                        <td>
+                                            <div class="patient-identity">
+                                                <span class="initials-avatar">{{ appointment.patient.first_name|slice:':1'|upper }}{{ appointment.patient.last_name|slice:':1'|upper }}</span>
+                                                <span><strong>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</strong><small class="patient-handle">@{{ appointment.patient.username }}</small></span>
+                                            </div>
+                                        </td>
                                         <td>{{ appointment.doctor.name }}</td>
                                         <td>{{ appointment.date }} {{ appointment.time }}</td>
                                         <td>Booking</td>
@@ -377,9 +976,10 @@
                 </section>
 
                 <section id="appointments-tab" class="admin-section tab-pane fade" role="tabpanel">
-                    <div class="section-card mb-3">
+                    <div class="mb-3">
                         <h5>Appointment timeline</h5>
-                        <form method="get" class="row g-3 align-items-end">
+                        <form method="get" class="filter-bar">
+                            <input type="hidden" name="tab" value="appointments">
                             {{ filter_form.as_p }}
                             <div class="col-auto">
                                 <button class="btn btn-primary" type="submit">Filter</button>
@@ -388,8 +988,17 @@
                     </div>
 
                     <div class="section-card">
+                        <div class="appointment-status-tabs" role="tablist" aria-label="Filter appointments by status">
+                            <button type="button" class="appointment-status-tab active" data-appointment-status-filter="all">All</button>
+                            <button type="button" class="appointment-status-tab" data-appointment-status-filter="pending">Pending</button>
+                            <button type="button" class="appointment-status-tab" data-appointment-status-filter="confirmed">Confirmed</button>
+                            <button type="button" class="appointment-status-tab" data-appointment-status-filter="checkedin">Checked-in</button>
+                            <button type="button" class="appointment-status-tab" data-appointment-status-filter="completed">Completed</button>
+                            <button type="button" class="appointment-status-tab" data-appointment-status-filter="cancelled">Cancelled</button>
+                            <button type="button" class="appointment-status-tab" data-appointment-status-filter="noshow">No-show</button>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-striped align-middle mb-0">
+                            <table class="table admin-table align-middle">
                                 <thead>
                                     <tr>
                                         <th>Patient</th>
@@ -402,8 +1011,13 @@
                                 </thead>
                                 <tbody>
                                     {% for appointment in appointments %}
-                                    <tr>
-                                        <td>{{ appointment.patient.username }}</td>
+                                    <tr data-admin-appointment-row data-appointment-status="{{ appointment.status|lower|cut:'_' }}">
+                                        <td>
+                                            <div class="patient-identity">
+                                                <span class="initials-avatar">{{ appointment.patient.first_name|slice:':1'|upper }}{{ appointment.patient.last_name|slice:':1'|upper }}</span>
+                                                <span><strong>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</strong><small class="patient-handle">@{{ appointment.patient.username }}</small></span>
+                                            </div>
+                                        </td>
                                         <td>{{ appointment.doctor.name }}</td>
                                         <td>{{ appointment.date }}</td>
                                         <td>{{ appointment.time }}</td>
@@ -423,15 +1037,30 @@
                                             {% endif %}
                                         </td>
                                         <td>
-                                            <form method="post" action="{% url 'appointment_status_update' appointment.id %}" class="d-flex align-items-center gap-2">
-                                                {% csrf_token %}
-                                                <select name="status" class="form-select form-select-sm">
-                                                    {% for value, label in appointment.STATUS_CHOICES %}
-                                                        <option value="{{ value }}" {% if value == appointment.status %}selected{% endif %}>{{ label }}</option>
-                                                    {% endfor %}
-                                                </select>
-                                                <button class="btn btn-sm btn-primary" type="submit">Update</button>
-                                            </form>
+                                            <div class="d-flex align-items-center gap-2">
+                                                {% if appointment.status == 'COMPLETED' %}
+                                                <button type="button" class="table-action" data-bs-toggle="modal" data-bs-target="#adminSummaryModal{{ appointment.id }}"><i class="bi bi-file-medical"></i>View Summary</button>
+                                                {% if request.user.role == 'ADMIN' %}
+                                                <form method="post" action="{% url 'appointment_archive' appointment.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Archive Appointment Record?" data-confirm-message="Are you sure you want to archive this completed appointment? It will be moved to the Archived Appointments list in Settings." data-confirm-text="Archive">
+                                                    {% csrf_token %}
+                                                    <button class="table-action text-warning" type="submit"><i class="bi bi-archive me-1"></i>Archive</button>
+                                                </form>
+                                                {% endif %}
+                                                {% else %}
+                                                <form method="post" action="{% url 'appointment_status_update' appointment.id %}" class="d-flex align-items-center gap-2 flex-grow-1" data-confirm-form data-confirm-type="info" data-confirm-title="Update Appointment Status?" data-confirm-status-update="true" data-confirm-text="Update Status">
+                                                    {% csrf_token %}
+                                                    <select name="status" class="form-select form-select-sm">
+                                                        {% for value, label in appointment.STATUS_CHOICES %}
+                                                            <option value="{{ value }}" {% if value == appointment.status %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button class="table-action" type="submit"><i class="bi bi-arrow-repeat"></i>Update</button>
+                                                </form>
+                                                {% if appointment.status != 'CANCELLED' and appointment.status != 'NO_SHOW' %}
+                                                <button type="button" class="table-action" data-bs-toggle="modal" data-bs-target="#adminConsultationModal{{ appointment.id }}"><i class="bi bi-check2-circle"></i>Complete</button>
+                                                {% endif %}
+                                                {% endif %}
+                                            </div>
                                         </td>
                                     </tr>
                                     {% empty %}
@@ -443,12 +1072,13 @@
                     </div>
                 </section>
 
+                {% if request.user.role == 'ADMIN' %}
                 <section id="doctors-tab" class="admin-section tab-pane fade" role="tabpanel">
                     <div class="row g-3">
                         <div class="col-12 col-lg-4">
                             <div class="section-card h-100">
                                 <h5>Add new doctor</h5>
-                                <form method="post" enctype="multipart/form-data">
+                                <form method="post" enctype="multipart/form-data" class="admin-form">
                                     {% csrf_token %}
                                     {{ doctor_form.as_p }}
                                     <button type="submit" name="save_doctor" class="btn btn-primary"><i class="bi bi-person-plus-fill me-1"></i>Save doctor</button>
@@ -460,7 +1090,7 @@
                             <div class="section-card h-100">
                                 <h5>Doctors directory</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-striped align-middle mb-0">
+                                    <table class="table admin-table align-middle">
                                         <thead>
                                             <tr>
                                                 <th>Name</th>
@@ -473,15 +1103,20 @@
                                         <tbody>
                                             {% for doctor in doctors %}
                                             <tr class="doctor-row-clickable" data-doctor-id="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-sex="{{ doctor.get_sex_display }}" data-doctor-bio="{{ doctor.bio|default:'Experienced physician devoted to patient care.'|escapejs }}" data-doctor-photo="{% if doctor.photo %}{{ doctor.photo.url }}{% endif %}">
-                                                <td>{{ doctor.name }}</td>
+                                                <td>
+                                                    <div class="patient-identity">
+                                                        <span class="initials-avatar">{{ doctor.name|slice:':1'|upper }}</span>
+                                                        <span><strong>{{ doctor.name }}</strong><small class="patient-handle">{{ doctor.specialty }}</small></span>
+                                                    </div>
+                                                </td>
                                                 <td>{{ doctor.specialty }}</td>
                                                 <td>{{ doctor.get_sex_display }}</td>
                                                 <td>{{ doctor.bio|default:'-' }}</td>
                                                 <td>
                                                     <div class="d-flex flex-wrap gap-2">
-                                                        <a class="btn btn-sm btn-outline-primary" href="{% url 'doctor_edit' doctor.id %}" onclick="event.stopPropagation();"><i class="bi bi-pencil-square me-1"></i>Edit</a>
-                                                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'admin_dashboard' %}?tab=schedules&doctor_id={{ doctor.id }}" onclick="event.stopPropagation();"><i class="bi bi-calendar3 me-1"></i>Schedules</a>
-                                                        <a class="btn btn-sm btn-outline-warning" href="{% url 'doctor_delete' doctor.id %}" onclick="event.stopPropagation(); return confirm('Archive this doctor? They will be hidden from the public directory.')"><i class="bi bi-archive-fill me-1"></i>Archive</a>
+                                                        <a class="doctor-action-btn edit" href="{% url 'doctor_edit' doctor.id %}" onclick="event.stopPropagation();"><i class="bi bi-pencil-square"></i>Edit</a>
+                                                        <a class="doctor-action-btn schedule" href="{% url 'admin_dashboard' %}?tab=schedules&doctor_id={{ doctor.id }}" onclick="event.stopPropagation();"><i class="bi bi-calendar3"></i>Schedules</a>
+                                                        <a class="doctor-action-btn archive" href="{% url 'doctor_delete' doctor.id %}" data-confirm data-confirm-type="warning" data-confirm-title="Archive Doctor Account?" data-confirm-message="Are you sure you want to archive this doctor? They will be hidden from the public directory and cannot be booked until restored." data-confirm-text="Archive Doctor" onclick="event.stopPropagation();"><i class="bi bi-archive-fill"></i>Archive</a>
                                                     </div>
                                                 </td>
                                             </tr>
@@ -495,16 +1130,62 @@
                         </div>
                     </div>
                 </section>
+                {% endif %}
 
+                {% if request.user.role == 'ADMIN' %}
                 <section id="schedules-tab" class="admin-section tab-pane fade" role="tabpanel">
                     <div class="row g-3 mb-3">
                         <div class="col-12 col-lg-6">
                             <div class="section-card h-100">
-                                <h5>Add schedule</h5>
-                                <form method="post">
+                                <h5>{% if edit_schedule_id %}Edit weekly schedule{% else %}Add schedule{% endif %}</h5>
+                                <p class="text-muted small mb-3">Set recurring weekly availability. Select one or more days for the same hours.</p>
+                                <form method="post" class="admin-form">
                                     {% csrf_token %}
-                                    {{ schedule_form.as_p }}
-                                    <button type="submit" name="save_schedule" class="btn btn-primary"><i class="bi bi-calendar-plus-fill me-1"></i>Save schedule</button>
+                                    {% if edit_schedule_id %}<input type="hidden" name="edit_schedule" value="{{ edit_schedule_id }}">{% endif %}
+                                    <div class="mb-3">
+                                        <label class="form-label" for="scheduleDoctorSearch">Doctor</label>
+                                        <input id="scheduleDoctorSearch" class="form-control mb-2" type="search" placeholder="Search doctors" data-doctor-search="schedule" autocomplete="off">
+                                        {{ schedule_form.doctor }}
+                                        {% for error in schedule_form.doctor.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
+                                            <label class="form-label mb-0">Days of week</label>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                <button class="btn btn-sm btn-outline-primary" type="button" data-select-weekdays>Select Weekdays (Mon–Fri)</button>
+                                                <button class="btn btn-sm btn-outline-secondary" type="button" data-select-all-days>Select All Days</button>
+                                            </div>
+                                        </div>
+                                        <div class="schedule-day-options" role="group" aria-label="Select weekly availability days">
+                                            {% for checkbox in schedule_form.days_of_week %}
+                                            <label class="schedule-day-pill" for="{{ checkbox.id_for_label }}">
+                                                {{ checkbox.tag }}<span>{{ checkbox.choice_label }}</span>
+                                            </label>
+                                            {% endfor %}
+                                        </div>
+                                        {% for error in schedule_form.days_of_week.errors %}<div class="text-danger small mt-1">{{ error }}</div>{% endfor %}
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-sm-6">
+                                            <label class="form-label" for="{{ schedule_form.start_time.id_for_label }}">Start Time</label>
+                                            {{ schedule_form.start_time }}
+                                            {% for error in schedule_form.start_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label" for="{{ schedule_form.end_time.id_for_label }}">End Time</label>
+                                            {{ schedule_form.end_time }}
+                                            {% for error in schedule_form.end_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label" for="{{ schedule_form.slot_duration.id_for_label }}">Slot Duration (minutes)</label>
+                                            {{ schedule_form.slot_duration }}
+                                            <div class="form-text">{{ schedule_form.slot_duration.help_text }}</div>
+                                            {% for error in schedule_form.slot_duration.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                        </div>
+                                    </div>
+                                    {% for error in schedule_form.non_field_errors %}<div class="text-danger small mb-2">{{ error }}</div>{% endfor %}
+                                    <button type="submit" name="save_schedule" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>{% if edit_schedule_id %}Update Schedule{% else %}Save Schedule{% endif %}</button>
+                                    {% if edit_schedule_id %}<a class="btn btn-outline-secondary ms-1" href="{% url 'admin_dashboard' %}?tab=schedules">Cancel</a>{% endif %}
                                 </form>
                             </div>
                         </div>
@@ -512,36 +1193,81 @@
                         <div class="col-12 col-lg-6">
                             <div class="section-card h-100">
                                 <h5>Block a slot</h5>
-                                <form method="post">
+                                <p class="text-muted small mb-3">Block specific dates or hours for leaves, meetings, or holidays. This overrides regular weekly availability.</p>
+                                <form method="post" class="admin-form">
                                     {% csrf_token %}
-                                    {{ blocked_form.as_p }}
-                                    <button type="submit" name="save_blocked" class="btn btn-primary">Save block</button>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="blockedDoctorSearch">Doctor</label>
+                                        <input id="blockedDoctorSearch" class="form-control mb-2" type="search" placeholder="Search doctors" data-doctor-search="blocked" autocomplete="off">
+                                        {{ blocked_form.doctor }}
+                                        {% for error in blocked_form.doctor.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="{{ blocked_form.date.id_for_label }}">Specific Date</label>
+                                        {{ blocked_form.date }}
+                                        {% for error in blocked_form.date.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                    </div>
+                                    <div class="form-check mb-3">
+                                        {{ blocked_form.full_day }}
+                                        <label class="form-check-label" for="{{ blocked_form.full_day.id_for_label }}">Block Full Day</label>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-sm-6">
+                                            <label class="form-label" for="{{ blocked_form.start_time.id_for_label }}">Start Time</label>
+                                            {{ blocked_form.start_time }}
+                                            {% for error in blocked_form.start_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <label class="form-label" for="{{ blocked_form.end_time.id_for_label }}">End Time</label>
+                                            {{ blocked_form.end_time }}
+                                            {% for error in blocked_form.end_time.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="{{ blocked_form.reason.id_for_label }}">Reason</label>
+                                        {{ blocked_form.reason }}
+                                        {% for error in blocked_form.reason.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                                    </div>
+                                    <button type="submit" name="save_blocked" class="btn btn-blocked-slot"><i class="bi bi-slash-circle me-1"></i>Save Blocked Slot</button>
                                 </form>
                             </div>
                         </div>
                     </div>
 
-                    <div class="section-card">
-                        <h5>Active doctor schedules</h5>
+                    <div class="section-card mb-3">
+                        <h5>Active Weekly Schedules</h5>
                         <div class="table-responsive">
-                            <table class="table table-striped align-middle mb-0">
+                            <table class="table admin-table align-middle">
                                 <thead>
                                     <tr>
                                         <th>Doctor</th>
-                                        <th>Day</th>
-                                        <th>Start</th>
-                                        <th>End</th>
+                                        <th>Day of Week</th>
+                                        <th>Hours</th>
                                         <th>Duration</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for schedule in schedules %}
                                     <tr>
-                                        <td>{{ schedule.doctor.name }}</td>
+                                        <td>
+                                            <div class="patient-identity">
+                                                <span class="initials-avatar">{{ schedule.doctor.name|slice:':1'|upper }}</span>
+                                                <span><strong>{{ schedule.doctor.name }}</strong><small class="patient-handle">{{ schedule.doctor.specialty }}</small></span>
+                                            </div>
+                                        </td>
                                         <td>{{ schedule.get_day_of_week_display }}</td>
-                                        <td>{{ schedule.start_time }}</td>
-                                        <td>{{ schedule.end_time }}</td>
-                                        <td>{{ schedule.slot_duration }} min</td>
+                                        <td>{{ schedule.start_time|time:'g:i A' }} – {{ schedule.end_time|time:'g:i A' }}</td>
+                                        <td>{{ schedule.slot_duration }} mins</td>
+                                        <td>
+                                            <div class="d-flex gap-2">
+                                                <a class="btn btn-sm btn-outline-primary" href="{% url 'admin_dashboard' %}?tab=schedules&amp;edit_schedule={{ schedule.id }}" aria-label="Edit {{ schedule.doctor.name }} {{ schedule.get_day_of_week_display }} schedule"><i class="bi bi-pencil-square"></i></a>
+                                                <form method="post" action="{% url 'schedule_delete' schedule.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Delete Weekly Schedule?" data-confirm-message="This recurring availability will be removed." data-confirm-text="Delete Schedule">
+                                                    {% csrf_token %}
+                                                    <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Delete {{ schedule.doctor.name }} {{ schedule.get_day_of_week_display }} schedule"><i class="bi bi-trash"></i></button>
+                                                </form>
+                                            </div>
+                                        </td>
                                     </tr>
                                     {% empty %}
                                     <tr><td colspan="5" class="text-center text-muted">No schedules configured.</td></tr>
@@ -550,68 +1276,299 @@
                             </table>
                         </div>
                     </div>
-                </section>
 
-                <section id="archived-tab" class="admin-section tab-pane fade" role="tabpanel">
                     <div class="section-card">
-                        <h5>Archived doctors</h5>
+                        <h5>Blocked Hours / Time Off</h5>
                         <div class="table-responsive">
-                            <table class="table table-striped align-middle mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Specialty</th>
-                                        <th>Sex</th>
-                                        <th>Archived</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
+                            <table class="table admin-table align-middle">
+                                <thead><tr><th>Doctor</th><th>Date</th><th>Blocked Hours</th><th>Reason</th><th>Action</th></tr></thead>
                                 <tbody>
-                                    {% for doctor in archived_doctors %}
-                                    <tr class="archived-row">
-                                        <td>{{ doctor.name }}</td>
-                                        <td>{{ doctor.specialty }}</td>
-                                        <td>{{ doctor.get_sex_display }}</td>
-                                        <td>{{ doctor.archived_at|date:'M d, Y'|default:'-' }}</td>
+                                    {% for blocked_slot in blocked_slots %}
+                                    <tr>
+                                        <td>{{ blocked_slot.doctor.name }}</td>
+                                        <td>{{ blocked_slot.date|date:'M j, Y' }}</td>
+                                        <td>{{ blocked_slot.start_time|time:'g:i A' }} – {{ blocked_slot.end_time|time:'g:i A' }}</td>
+                                        <td>{{ blocked_slot.reason }}</td>
                                         <td>
-                                            <a class="btn btn-sm btn-outline-success" href="{% url 'doctor_restore' doctor.id %}" onclick="return confirm('Restore this doctor back to the public directory?')"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore</a>
+                                            <form method="post" action="{% url 'blocked_slot_delete' blocked_slot.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Remove Blocked Time?" data-confirm-message="This doctor will become available during the selected hours." data-confirm-text="Remove Block">
+                                                {% csrf_token %}
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Remove Block</button>
+                                            </form>
                                         </td>
                                     </tr>
                                     {% empty %}
-                                    <tr><td colspan="5" class="text-center text-muted">No archived doctors.</td></tr>
+                                    <tr><td colspan="5" class="text-center text-muted">No upcoming blocked hours or time off.</td></tr>
                                     {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </section>
+
+                {% endif %}
+                {% endif %}
+                {% if settings_page and request.user.role == 'ADMIN' %}
+                <section id="settings-tab" class="admin-section{% if settings_page %} active show{% endif %} tab-pane fade" role="tabpanel" data-settings-root data-active-settings="{{ settings_tab }}" data-active-archive="{{ request.GET.archive_tab|default:'doctors' }}">
+                    <div class="admin-topbar">
+                        <div class="admin-greeting"><h2>System Settings</h2><p class="subtle">Manage system archives, equipment inventory, and administrative profile details.</p></div>
+                    </div>
+                    <div class="settings-subnav" role="tablist" aria-label="System settings">
+                        <button class="settings-tab active" type="button" data-settings-tab="archives"><i class="bi bi-archive"></i>Archives</button>
+                        <button class="settings-tab" type="button" data-settings-tab="inventory"><i class="bi bi-box-seam"></i>Inventory</button>
+                        <button class="settings-tab" type="button" data-settings-tab="restock"><i class="bi bi-box-arrow-in-down"></i>Add Stock</button>
+                        <button class="settings-tab" type="button" data-settings-tab="profile"><i class="bi bi-person"></i>My Profile</button>
+                    </div>
+                    <div class="settings-pane" data-settings-pane="archives">
+                        <div class="settings-subnav mb-3" role="tablist" aria-label="Archive categories">
+                            <button class="settings-tab active" type="button" data-archive-tab="doctors"><i class="bi bi-people me-1"></i>Archived Doctors</button>
+                            <button class="settings-tab" type="button" data-archive-tab="appointments"><i class="bi bi-calendar-event me-1"></i>Archived Appointments</button>
+                        </div>
+                        <div data-archive-pane="doctors">
+                        <div class="section-card">
+                            <h5>Archived Doctors</h5>
+                            <div class="table-responsive"><table class="table admin-table align-middle">
+                                <thead><tr><th>Name</th><th>Specialty</th><th>Sex</th><th>Archived</th><th>Action</th></tr></thead>
+                                <tbody>
+                                    {% for doctor in archived_doctors %}
+                                    <tr class="archived-row">
+                                        <td><div class="patient-identity"><span class="initials-avatar">{{ doctor.name|slice:':1'|upper }}</span><span><strong>{{ doctor.name }}</strong><small class="patient-handle">{{ doctor.specialty }}</small></span></div></td>
+                                        <td>{{ doctor.specialty }}</td><td>{{ doctor.get_sex_display }}</td>
+                                        <td><span class="badge rounded-pill text-bg-light">{{ doctor.archived_at|date:'M d, Y'|default:'-' }}</span></td>
+                                        <td><a class="table-action" href="{% url 'doctor_restore' doctor.id %}" data-confirm data-confirm-type="success" data-confirm-title="Restore Account?" data-confirm-message="Are you sure you want to restore this doctor back to active status?" data-confirm-text="Restore Account"><i class="bi bi-arrow-counterclockwise"></i>Restore</a></td>
+                                    </tr>
+                                    {% empty %}<tr><td colspan="5" class="text-center text-muted">No archived doctors.</td></tr>{% endfor %}
+                                </tbody>
+                            </table></div>
+                        </div>
+                        </div>
+                        <div data-archive-pane="appointments" hidden>
+                            <div class="section-card">
+                                <h5>Archived Appointments</h5>
+                                <div class="table-responsive"><table class="table admin-table align-middle">
+                                    <thead><tr><th>Patient</th><th>Doctor</th><th>Date</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+                                    <tbody>
+                                        {% for appointment in archived_appointments %}
+                                        <tr>
+                                            <td>{{ appointment.patient.get_full_name|default:appointment.patient.username }}</td>
+                                            <td>{{ appointment.doctor.name }}</td>
+                                            <td>{{ appointment.date|date:'M j, Y' }}</td>
+                                            <td>{{ appointment.time|time:'g:i A' }}</td>
+                                            <td><span class="status-badge bg-status-{{ appointment.status|lower|cut:'_' }}">{{ appointment.get_status_display }}</span></td>
+                                            <td>
+                                                <form method="post" action="{% url 'appointment_restore' appointment.id %}" data-confirm-form data-confirm-type="success" data-confirm-title="Restore Appointment?" data-confirm-message="This appointment will return to the active Appointment Timeline." data-confirm-text="Restore">
+                                                    {% csrf_token %}
+                                                    <button class="table-action" type="submit"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore</button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr><td colspan="6" class="text-center text-muted">No archived appointments.</td></tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-pane" data-settings-pane="inventory" hidden>
+                        <div class="section-card">
+                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                                <div><h5 class="mb-1">Medical inventory</h5><p class="text-muted small mb-0">Track medicines, supplies, and equipment stock.</p></div>
+                                <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#settingsAddInventory"><i class="bi bi-plus-lg me-1"></i>Add Item</button>
+                            </div>
+                            <form method="post" class="collapse mb-3" id="settingsAddInventory">
+                                {% csrf_token %}<input type="hidden" name="settings_action" value="inventory_add">
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-md-4"><label class="form-label small">Item name</label><input class="form-control" name="name" required></div>
+                                    <div class="col-md-3"><label class="form-label small">Category</label><select class="form-select" name="category"><option value="MEDICATION">Medication</option><option value="CONSUMABLES">Consumables</option><option value="EQUIPMENT">Equipment</option><option value="GENERAL_ITEMS">General items</option></select></div>
+                                    <div class="col-md-2"><label class="form-label small">Stock</label><input class="form-control" name="quantity" type="number" min="0" value="0"></div>
+                                    <div class="col-md-2"><label class="form-label small">Unit cost</label><input class="form-control" name="unit_price" type="number" min="0" step="0.01" value="0"></div>
+                                    <div class="col-md-1"><button class="btn btn-primary w-100" type="submit" aria-label="Save item"><i class="bi bi-check-lg"></i></button></div>
+                                </div>
+                            </form>
+                            <input class="form-control settings-inventory-search mb-3" type="search" placeholder="Search equipment or supplies..." data-inventory-search>
+                            <div class="table-responsive"><table class="table admin-table align-middle">
+                                <thead><tr><th>Item name</th><th>Category</th><th>Stock level</th><th>Status</th><th>Actions</th></tr></thead>
+                                <tbody>
+                                    {% for item in inventory_items %}
+                                    <tr data-inventory-row data-search-text="{{ item.name|lower }} {{ item.get_category_display|lower }}">
+                                        <td><strong>{{ item.name }}</strong></td><td>{{ item.get_category_display }}</td><td>{{ item.quantity }}</td>
+                                        <td>{% if item.quantity <= 0 %}<span class="badge rounded-pill text-bg-danger">Out of Stock</span>{% elif item.quantity <= 10 %}<span class="badge rounded-pill text-bg-warning">Low Stock</span>{% else %}<span class="badge rounded-pill text-bg-success">In Stock</span>{% endif %}</td>
+                                        <td><div class="d-flex gap-1">
+                                            <button class="table-action" type="button" data-restock-item="{{ item.id }}"><i class="bi bi-box-arrow-in-down me-1"></i>Restock</button>
+                                            <form method="post" data-confirm-form data-confirm-type="danger" data-confirm-title="Delete Inventory Item?" data-confirm-message="Are you sure you want to remove this item from the inventory? This action cannot be undone." data-confirm-text="Delete Item">{% csrf_token %}<input type="hidden" name="settings_action" value="inventory_delete"><input type="hidden" name="item_id" value="{{ item.id }}"><button class="table-action text-danger" type="submit">Delete</button></form>
+                                        </div></td>
+                                    </tr>
+                                    {% empty %}<tr><td colspan="5" class="text-center text-muted">No inventory items yet.</td></tr>{% endfor %}
+                                </tbody>
+                            </table></div>
+                        </div>
+                    </div>
+                    <div class="settings-pane" data-settings-pane="restock" hidden>
+                        <div class="section-card" style="max-width: 760px;">
+                            <h5>Receive stock</h5>
+                            <p class="text-muted small mb-4">Select an existing inventory item and enter the amount received. The quantity will be added to its current stock.</p>
+                            {% if inventory_items %}
+                            <form method="post" class="admin-form">
+                                {% csrf_token %}<input type="hidden" name="settings_action" value="inventory_restock">
+                                <div class="mb-3">
+                                    <label for="restockItem">Inventory item</label>
+                                    <select class="form-select" id="restockItem" name="item_id" required>
+                                        <option value="">Choose an item...</option>
+                                        {% for item in inventory_items %}
+                                        <option value="{{ item.id }}">{{ item.name }} · {{ item.get_category_display }} · Current stock: {{ item.quantity }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="quantityReceived">Quantity received</label>
+                                    <input class="form-control" id="quantityReceived" name="quantity_received" type="number" min="1" step="1" placeholder="Enter units received" required>
+                                </div>
+                                <div class="d-flex justify-content-end"><button class="btn btn-primary" type="submit"><i class="bi bi-box-arrow-in-down me-1"></i>Add to stock</button></div>
+                            </form>
+                            {% else %}
+                            <div class="text-center py-4">
+                                <i class="bi bi-box-seam fs-2 text-muted"></i>
+                                <p class="text-muted mt-2">There are no inventory items to restock yet.</p>
+                                <button class="btn btn-primary" type="button" data-settings-tab="inventory">Add an inventory item</button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="settings-pane" data-settings-pane="profile" hidden>
+                        <div class="section-card">
+                            <h5>My Profile</h5>
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}<input type="hidden" name="settings_action" value="save_profile">
+                                <div class="settings-upload d-flex align-items-center gap-3 mb-4">
+                                    {% if request.user.photo %}<img src="{{ request.user.photo.url }}" alt="Profile photo" class="rounded-circle" style="width:64px;height:64px;object-fit:cover;">{% else %}<span class="admin-user-badge">{{ request.user.first_name|default:request.user.username|slice:':1'|upper }}</span>{% endif %}
+                                    <div>{{ profile_form.photo.label_tag }}{{ profile_form.photo }}</div>
+                                </div>
+                                <div class="settings-profile-grid">
+                                    <div>{{ profile_form.first_name.label_tag }}{{ profile_form.first_name }}</div>
+                                    <div>{{ profile_form.last_name.label_tag }}{{ profile_form.last_name }}</div>
+                                    <div>{{ profile_form.email.label_tag }}{{ profile_form.email }}</div>
+                                    <div>{{ profile_form.phone.label_tag }}{{ profile_form.phone }}</div>
+                                </div>
+                                <div class="d-flex justify-content-end mt-3"><button class="btn btn-primary" type="submit">Save Changes</button></div>
+                            </form>
+                        </div>
+                        <div class="section-card settings-password-panel mt-3">
+                            <h5>Update password</h5>
+                            <form method="post">
+                                {% csrf_token %}<input type="hidden" name="settings_action" value="change_password">
+                                <div class="mb-3"><label class="form-label" for="current_password">Current password</label><input class="form-control" type="password" id="current_password" name="current_password" required></div>
+                                <div class="mb-3"><label class="form-label" for="new_password">New password</label><input class="form-control" type="password" id="new_password" name="new_password" required></div>
+                                <div class="mb-3"><label class="form-label" for="confirm_password">Confirm new password</label><input class="form-control" type="password" id="confirm_password" name="confirm_password" required></div>
+                                <div class="d-flex justify-content-end"><button class="btn btn-primary" type="submit">Update Password</button></div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+                {% endif %}
             </div>
         </main>
     </div>
 </div>
 
-<div class="modal fade" id="doctorDetailModal" tabindex="-1" aria-labelledby="doctorDetailModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+{% for appointment in appointments %}
+{% if appointment.status == 'COMPLETED' %}
+<div class="modal fade" id="adminSummaryModal{{ appointment.id }}" tabindex="-1" aria-labelledby="adminSummaryModalLabel{{ appointment.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 shadow-lg">
             <div class="modal-header border-0 pb-2">
-                <h5 class="modal-title fw-bold" id="doctorDetailModalLabel">Doctor details</h5>
+                <div><h5 class="modal-title fw-bold" id="adminSummaryModalLabel{{ appointment.id }}">Consultation Record &amp; Medical Summary</h5><small class="text-muted">{{ appointment.patient.get_full_name|default:appointment.patient.username }} · {{ appointment.doctor.name }} · {{ appointment.date|date:'M d, Y' }} at {{ appointment.time|time:'g:i A' }}</small></div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4 pt-2">
-                <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-4">
-                    <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center fw-bold" id="detailDoctorAvatar" style="width: 60px; height: 60px; font-size: 1.3rem;">D</div>
-                    <div>
-                        <div class="fw-bold fs-4" id="detailDoctorName">Doctor Name</div>
-                        <div class="d-flex flex-wrap align-items-center gap-2 mt-1">
-                            <span class="badge bg-primary-subtle text-primary" id="detailDoctorSpecialty">Specialty</span>
-                            <span class="badge bg-light text-dark" id="detailDoctorSex">Sex</span>
-                        </div>
-                    </div>
+                <div class="admin-summary-block mb-3"><span class="admin-summary-label">Medical summary</span><div>{{ appointment.medical_summary|default:'No medical summary recorded.' }}</div></div>
+                <div class="admin-summary-block mb-3"><span class="admin-summary-label">Reason for visit</span><div>{{ appointment.notes|default:'No reason provided.' }}</div></div>
+                <div class="row g-3">
+                    <div class="col-md-6"><div class="admin-summary-block"><span class="admin-summary-label">Medication used</span>{% if appointment.medications_used %}<ul class="list-group list-group-flush">{% for item in appointment.medications_used %}<li class="list-group-item px-0">{{ item.name }}{% if item.quantity %} · {{ item.quantity }} qty{% endif %}</li>{% endfor %}</ul>{% else %}<div class="text-muted">No medication recorded.</div>{% endif %}</div></div>
+                    <div class="col-md-6"><div class="admin-summary-block"><span class="admin-summary-label">Supplies used</span>{% if appointment.supplies_used %}<ul class="list-group list-group-flush">{% for item in appointment.supplies_used %}<li class="list-group-item px-0">{{ item.name }}{% if item.quantity %} · {{ item.quantity }} qty{% endif %}</li>{% endfor %}</ul>{% else %}<div class="text-muted">No supplies recorded.</div>{% endif %}</div></div>
                 </div>
-                <p class="text-muted mb-3" id="detailDoctorBio">Doctor biography.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="modal fade" id="adminConsultationModal{{ appointment.id }}" tabindex="-1" aria-labelledby="adminConsultationModalLabel{{ appointment.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <form method="post" action="{% url 'appointment_status_update' appointment.id %}" data-confirm-form data-confirm-type="info" data-confirm-title="Complete Appointment?" data-confirm-message="Save the consultation record and mark this appointment as Completed?" data-confirm-text="Complete Appointment">
+        {% csrf_token %}
+        <input type="hidden" name="status" value="COMPLETED">
+        <div class="modal-header border-0 pb-2">
+          <h5 class="modal-title fw-bold" id="adminConsultationModalLabel{{ appointment.id }}">Consultation Record &amp; Medical Summary</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4 pt-2">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Doctor diagnosis / notes <span class="text-danger">*</span></label>
+            <textarea class="form-control" name="diagnosis" rows="4" placeholder="Document findings, assessment, and treatment plan..." required></textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Prescribe medication</label>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-7">
+                <select class="form-select" name="medication_ids" multiple size="5">
+                  {% for item in medication_items %}
+                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} in stock)</option>
+                  {% empty %}
+                    <option disabled>No medication items available</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-5">
+                <input type="number" class="form-control" name="medication_quantities" min="1" value="1" placeholder="Qty">
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Clinic supplies used</label>
+            <div class="row g-2 align-items-end">
+              <div class="col-md-7">
+                <select class="form-select" name="supply_ids" multiple size="5">
+                  {% for item in consumable_items %}
+                    <option value="{{ item.id }}">{{ item.name }} ({{ item.quantity }} in stock)</option>
+                  {% empty %}
+                    <option disabled>No supplies available</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-md-5">
+                <input type="number" class="form-control" name="supply_quantities" min="1" value="1" placeholder="Qty">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save &amp; Complete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<div class="modal fade doctor-detail-modal" id="doctorDetailModal" tabindex="-1" aria-labelledby="doctorDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div><h5 class="modal-title fw-bold mb-1" id="doctorDetailModalLabel">Doctor profile</h5><small class="text-muted">Staff information and specialty</small></div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="doctor-detail-profile">
+                    <div class="doctor-detail-avatar" id="detailDoctorAvatar">D</div>
+                    <div class="min-w-0"><h3 class="doctor-detail-name" id="detailDoctorName">Doctor Name</h3><div class="doctor-detail-tags"><span class="badge bg-primary-subtle text-primary" id="detailDoctorSpecialty">Specialty</span><span class="badge bg-light text-dark" id="detailDoctorSex">Sex</span></div></div>
+                </div>
+                <p class="doctor-detail-bio" id="detailDoctorBio">Doctor biography.</p>
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div class="text-muted small">Clinic schedule and patient notes are managed from the admin panel.</div>
-                    <a href="{% url 'admin_dashboard' %}?tab=schedules" class="btn btn-primary">Open schedules</a>
+                    <span class="text-muted small"><i class="bi bi-info-circle me-1"></i>Schedules can be managed from the admin panel.</span>
+                    <a href="{% url 'admin_dashboard' %}?tab=schedules" id="detailDoctorSchedules" class="doctor-action-btn schedule"><i class="bi bi-calendar3"></i>Open schedules</a>
                 </div>
             </div>
         </div>
@@ -622,12 +1579,45 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <script>
+const settingsRoot = document.querySelector('[data-settings-root]');
+if (settingsRoot) {
+    function activateSettingsPane(name) {
+        settingsRoot.querySelectorAll('[data-settings-tab]').forEach(function (button) {
+            button.classList.toggle('active', button.dataset.settingsTab === name);
+        });
+        document.querySelectorAll('[data-settings-pane]').forEach(function (pane) {
+            pane.hidden = pane.dataset.settingsPane !== name;
+        });
+    }
+    function activateArchivePane(name) {
+        settingsRoot.querySelectorAll('[data-archive-tab]').forEach(function (button) {
+            button.classList.toggle('active', button.dataset.archiveTab === name);
+        });
+        settingsRoot.querySelectorAll('[data-archive-pane]').forEach(function (pane) {
+            pane.hidden = pane.dataset.archivePane !== name;
+        });
+    }
+    activateSettingsPane(settingsRoot.dataset.activeSettings || 'archives');
+    activateArchivePane(settingsRoot.dataset.activeArchive || 'doctors');
+    settingsRoot.querySelectorAll('[data-settings-tab]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            activateSettingsPane(this.dataset.settingsTab);
+        });
+    });
+    settingsRoot.querySelectorAll('[data-archive-tab]').forEach(function (button) {
+        button.addEventListener('click', function () {
+            activateArchivePane(this.dataset.archiveTab);
+        });
+    });
+}
+
 const doctorDetailModal = new bootstrap.Modal(document.getElementById('doctorDetailModal'));
 const detailDoctorName = document.getElementById('detailDoctorName');
 const detailDoctorSpecialty = document.getElementById('detailDoctorSpecialty');
 const detailDoctorSex = document.getElementById('detailDoctorSex');
 const detailDoctorBio = document.getElementById('detailDoctorBio');
 const detailDoctorAvatar = document.getElementById('detailDoctorAvatar');
+const detailDoctorSchedules = document.getElementById('detailDoctorSchedules');
 
 function updateDoctorAvatar(avatarEl, doctorName, photoUrl) {
     if (photoUrl) {
@@ -644,6 +1634,7 @@ document.querySelectorAll('.doctor-row-clickable').forEach(function (row) {
         detailDoctorSex.textContent = this.dataset.doctorSex || 'Not specified';
         detailDoctorBio.textContent = this.dataset.doctorBio || 'Experienced physician devoted to patient care.';
         updateDoctorAvatar(detailDoctorAvatar, this.dataset.doctorName, this.dataset.doctorPhoto || '');
+        detailDoctorSchedules.href = '{% url "admin_dashboard" %}?tab=schedules&doctor_id=' + encodeURIComponent(this.dataset.doctorId);
         doctorDetailModal.show();
     });
 });
@@ -654,12 +1645,46 @@ new Chart(document.getElementById('doctorChart'), {
     type: 'bar',
     data: {
         labels: doctorLabels,
-        datasets: [{ label: 'Appointments', data: doctorValues, backgroundColor: '#3b82f6' }]
+        datasets: [{
+            label: 'Appointments',
+            data: doctorValues,
+            backgroundColor: '#2563eb',
+            borderRadius: 8,
+            borderSkipped: false,
+            barThickness: 16,
+            maxBarThickness: 16,
+            barPercentage: 0.35,
+            categoryPercentage: 0.7
+        }]
     },
     options: {
+        indexAxis: 'y',
         responsive: true,
         maintainAspectRatio: false,
-        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0f172a',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                cornerRadius: 10,
+                padding: 12,
+                displayColors: false,
+                callbacks: {
+                    label: (context) => `${context.parsed.x} appointments`
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true,
+                ticks: { stepSize: 1, precision: 0 },
+                grid: { display: false, drawBorder: false }
+            },
+            y: {
+                grid: { color: '#f1f5f9', drawBorder: false }
+            }
+        }
     }
 });
 
@@ -669,11 +1694,55 @@ new Chart(document.getElementById('dailyChart'), {
     type: 'line',
     data: {
         labels: dailyLabels,
-        datasets: [{ label: 'Daily bookings', data: dailyValues, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.12)', fill: true, tension: 0.35 }]
+        datasets: [{
+            label: 'Daily bookings',
+            data: dailyValues,
+            borderColor: '#10b981',
+            borderWidth: 2,
+            backgroundColor: function (context) {
+                const chart = context.chart;
+                const chartArea = chart.chartArea;
+                if (!chartArea) return 'rgba(16,185,129,0.1)';
+                const gradient = chart.ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+                gradient.addColorStop(0, 'rgba(16,185,129,0.16)');
+                gradient.addColorStop(1, 'rgba(16,185,129,0)');
+                return gradient;
+            },
+            fill: true,
+            tension: 0.4,
+            pointRadius: 3,
+            pointHoverRadius: 6,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#10b981'
+        }]
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0f172a',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                cornerRadius: 10,
+                padding: 12,
+                displayColors: false,
+                callbacks: {
+                    label: (context) => `${context.parsed.y} bookings`
+                }
+            }
+        },
+        scales: {
+            x: {
+                grid: { display: false, drawBorder: false }
+            },
+            y: {
+                beginAtZero: true,
+                ticks: { stepSize: 1, precision: 0 },
+                grid: { color: '#f1f5f9', drawBorder: false }
+            }
+        }
     }
 });
 
@@ -684,6 +1753,7 @@ if (requestedTab) {
     if (targetTab) {
         const trigger = document.querySelector(`button[data-bs-target="#${requestedTab}-tab"]`);
         if (trigger) {
+            document.querySelectorAll('.admin-nav .nav-link').forEach((link) => link.classList.remove('active'));
             trigger.classList.add('active');
         }
         const panes = document.querySelectorAll('.admin-section');
@@ -699,5 +1769,95 @@ if (doctorIdFromQuery) {
         doctorSelect.value = doctorIdFromQuery;
     }
 }
+
+const scheduleDayInputs = Array.from(document.querySelectorAll('input[name="days_of_week"]'));
+const selectAllDaysButton = document.querySelector('[data-select-all-days]');
+function updateSelectAllDaysButton() {
+    if (!selectAllDaysButton) return;
+    const allSelected = scheduleDayInputs.length > 0 && scheduleDayInputs.every((input) => input.checked);
+    selectAllDaysButton.textContent = allSelected ? 'Clear All Days' : 'Select All Days';
+    selectAllDaysButton.setAttribute('aria-pressed', String(allSelected));
+}
+document.querySelector('[data-select-weekdays]')?.addEventListener('click', function () {
+    scheduleDayInputs.forEach((input) => { input.checked = Number(input.value) < 5; });
+    updateSelectAllDaysButton();
+});
+selectAllDaysButton?.addEventListener('click', function () {
+    const selectAll = !scheduleDayInputs.every((input) => input.checked);
+    scheduleDayInputs.forEach((input) => { input.checked = selectAll; });
+    updateSelectAllDaysButton();
+});
+scheduleDayInputs.forEach((input) => input.addEventListener('change', updateSelectAllDaysButton));
+updateSelectAllDaysButton();
+
+const fullDayCheckbox = document.getElementById('id_full_day');
+const blockedTimeInputs = document.querySelectorAll('[data-block-time]');
+function updateBlockedTimeInputs() {
+    if (!fullDayCheckbox) return;
+    blockedTimeInputs.forEach((input) => {
+        input.disabled = fullDayCheckbox.checked;
+        if (fullDayCheckbox.checked) {
+            input.value = input.dataset.blockTime === 'start' ? '00:00' : '23:59';
+        }
+    });
+}
+fullDayCheckbox?.addEventListener('change', updateBlockedTimeInputs);
+updateBlockedTimeInputs();
+
+document.querySelectorAll('[data-doctor-search]').forEach((searchInput) => {
+    const doctorSelect = document.querySelector(`[data-doctor-select="${searchInput.dataset.doctorSearch}"]`);
+    if (!doctorSelect) return;
+    searchInput.addEventListener('input', function () {
+        const searchTerm = this.value.trim().toLowerCase();
+        doctorSelect.querySelectorAll('option').forEach((option) => {
+            option.hidden = Boolean(searchTerm) && !option.textContent.toLowerCase().includes(searchTerm);
+        });
+    });
+});
+
+const availabilityFilter = document.querySelector('[data-availability-filter]');
+if (availabilityFilter) {
+    let availableOnly = false;
+    availabilityFilter.addEventListener('click', function () {
+        availableOnly = !availableOnly;
+        this.classList.toggle('active', availableOnly);
+        document.querySelectorAll('[data-availability-status]').forEach(function (item) {
+            item.hidden = availableOnly && item.dataset.availabilityStatus !== 'available';
+        });
+    });
+}
+
+const appointmentStatusTabs = document.querySelectorAll('[data-appointment-status-filter]');
+if (appointmentStatusTabs.length) {
+    appointmentStatusTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            const selectedStatus = this.dataset.appointmentStatusFilter;
+            appointmentStatusTabs.forEach(function (item) {
+                item.classList.toggle('active', item === tab);
+            });
+            document.querySelectorAll('[data-admin-appointment-row]').forEach(function (row) {
+                row.hidden = selectedStatus !== 'all' && row.dataset.appointmentStatus !== selectedStatus;
+            });
+        });
+    });
+}
+
+const inventorySearch = document.querySelector('[data-inventory-search]');
+if (inventorySearch) {
+    inventorySearch.addEventListener('input', function () {
+        const query = this.value.trim().toLowerCase();
+        document.querySelectorAll('[data-inventory-row]').forEach(function (row) {
+            row.hidden = !row.dataset.searchText.includes(query);
+        });
+    });
+}
+document.querySelectorAll('[data-restock-item]').forEach(function (button) {
+    button.addEventListener('click', function () {
+        const restockTab = document.querySelector('[data-settings-tab="restock"]');
+        if (restockTab) restockTab.click();
+        const itemSelect = document.getElementById('restockItem');
+        if (itemSelect) itemSelect.value = this.dataset.restockItem;
+    });
+});
 </script>
 {% endblock %}

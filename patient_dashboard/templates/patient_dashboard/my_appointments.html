@@ -1,9 +1,27 @@
-{% extends 'base.html' %}
+/admin-dashboard/settings/ now opens System Settings as the active section instead of showing Overview above it.{% extends 'base.html' %}
 
 {% block content %}
+{% include 'partials/portal_header.html' %}
 <style>
+  .appointments-page {
+    --appointments-panel: #ffffff;
+    --appointments-panel-alt: #f8fafc;
+    --appointments-text: #334155;
+    --appointments-heading: #0f172a;
+    --appointments-muted: #64748b;
+    --appointments-border: rgba(148, 163, 184, 0.16);
+  }
+  body[data-theme="dark"] .appointments-page {
+    --appointments-panel: #111827;
+    --appointments-panel-alt: #0f172a;
+    --appointments-text: #e5edf8;
+    --appointments-heading: #f8fafc;
+    --appointments-muted: #a5b4c8;
+    --appointments-border: rgba(148, 163, 184, 0.22);
+  }
     .modern-panel {
-        background: #fff;
+    background: var(--appointments-panel);
+    color: var(--appointments-text);
         border-radius: 20px;
         box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
         border: 1px solid rgba(148, 163, 184, 0.12);
@@ -28,15 +46,165 @@
         font-weight: 600;
         padding: 0.5rem 0.9rem;
         border: 1px solid rgba(148, 163, 184, 0.4);
-        background: #fff;
+        background: var(--appointments-panel);
     }
     .bg-status-pending { background: #fff3cd; color: #7a5600; }
     .bg-status-confirmed { background: #dbeafe; color: #1d4ed8; }
     .bg-status-completed { background: #dcfce7; color: #166534; }
     .bg-status-cancelled { background: #fee2e2; color: #991b1b; }
+    .patient-action-btn {
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 0.55rem 0.9rem;
+    }
+    .consultation-detail-modal .modal-content {
+        border: none;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    }
+    .consultation-detail-modal .modal-header {
+        background: linear-gradient(135deg, #eff6ff 0%, #e0f2fe 100%);
+        border-bottom: 1px solid rgba(59, 130, 246, 0.12);
+        padding: 1.2rem 1.2rem 1rem;
+    }
+    .consultation-detail-modal .modal-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    .consultation-detail-modal .title-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 1.2rem;
+    }
+    .consultation-detail-modal .modal-body {
+        background: #f8fafc;
+        padding: 1rem 1.2rem 1.1rem;
+    }
+    .consultation-detail-modal .info-strip {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-bottom: 1rem;
+    }
+    .consultation-detail-modal .info-pill {
+        background: #fff;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 999px;
+        padding: 0.45rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #475569;
+    }
+    .detail-block {
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        padding: 1rem;
+    }
+    .detail-label {
+        display: block;
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+    .list-group-item {
+        border-color: rgba(148, 163, 184, 0.14);
+    }
+    .modal-backdrop.show {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    .appointments-page .appointments-table {
+      border-collapse: separate;
+      border-spacing: 0 0.6rem;
+    }
+    .appointments-page .appointments-table thead th {
+      padding: 0 0.85rem 0.45rem;
+      color: var(--appointments-muted);
+      border: 0;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .appointments-page .appointment-row {
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .appointments-page .appointment-row:hover { transform: translateY(-2px); }
+    .appointments-page .appointment-row td {
+      padding: 0.9rem 0.85rem;
+      color: var(--appointments-text);
+      background: var(--appointments-panel-alt);
+      border-top: 1px solid var(--appointments-border);
+      border-bottom: 1px solid var(--appointments-border);
+      vertical-align: middle;
+    }
+    .appointments-page .appointment-row td:first-child {
+      border-left: 1px solid var(--appointments-border);
+      border-radius: 16px 0 0 16px;
+    }
+    .appointments-page .appointment-row td:last-child {
+      border-right: 1px solid var(--appointments-border);
+      border-radius: 0 16px 16px 0;
+    }
+    .appointment-doctor {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      color: var(--appointments-heading);
+      font-weight: 800;
+    }
+    .appointment-doctor-avatar {
+      display: grid;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 38px;
+      place-items: center;
+      border-radius: 50%;
+      object-fit: cover;
+      color: #1d4ed8;
+      background: #dbeafe;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+    .appointment-doctor small {
+      display: block;
+      margin-top: 0.15rem;
+      color: var(--appointments-muted);
+      font-size: 0.7rem;
+      font-weight: 500;
+    }
+    .appointment-detail-hint {
+      color: var(--appointments-muted);
+      font-size: 0.7rem;
+    }
+    body[data-theme="dark"] .consultation-detail-modal .modal-content,
+    body[data-theme="dark"] .consultation-detail-modal .modal-body,
+    body[data-theme="dark"] .consultation-detail-modal .detail-block,
+    body[data-theme="dark"] .consultation-detail-modal .info-pill {
+      color: var(--appointments-text);
+      background: var(--appointments-panel);
+      border-color: var(--appointments-border);
+    }
+    body[data-theme="dark"] .consultation-detail-modal .modal-header { background: #172554; }
+    body[data-theme="dark"] .consultation-detail-modal .modal-title,
+    body[data-theme="dark"] .consultation-detail-modal .detail-block span,
+    body[data-theme="dark"] .consultation-detail-modal .detail-block div { color: var(--appointments-text); }
+    body[data-theme="dark"] .consultation-detail-modal .text-muted { color: var(--appointments-muted) !important; }
 </style>
 
-<div class="modern-panel">
+  <div class="appointments-page">
+  <div class="modern-panel">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <h3 class="mb-1">My appointments</h3>
@@ -44,9 +212,13 @@
         </div>
         <a href="{% url 'patient_dashboard' %}" class="btn btn-outline-primary">Back to dashboard</a>
     </div>
+      <div class="d-flex gap-2 mb-3" role="group" aria-label="Appointment list">
+        <button type="button" class="btn btn-sm btn-primary" data-appointment-list="active">Active appointments</button>
+        <button type="button" class="btn btn-sm btn-outline-primary" data-appointment-list="archived">Archived</button>
+      </div>
 
     <div class="table-responsive">
-        <table class="table table-striped align-middle mb-0">
+        <table class="table appointments-table align-middle mb-0">
             <thead>
                 <tr>
                     <th>Doctor</th>
@@ -56,11 +228,20 @@
                     <th>Actions</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody data-appointment-list-body="active">
                 {% for appointment in appointments %}
-                <tr>
-                    <td>{{ appointment.doctor.name }}</td>
-                    <td>{{ appointment.date }}</td>
+                <tr class="appointment-row" data-appointment-modal="appointmentDetailsModal{{ appointment.id }}" role="button" tabindex="0" aria-label="View appointment with {{ appointment.doctor.name }}">
+                  <td>
+                    <div class="appointment-doctor">
+                      {% if appointment.doctor.photo %}
+                        <img class="appointment-doctor-avatar" src="{{ appointment.doctor.photo.url }}" alt="{{ appointment.doctor.name }}">
+                      {% else %}
+                        <span class="appointment-doctor-avatar">{{ appointment.doctor.name|slice:':2'|upper }}</span>
+                      {% endif %}
+                      <span>{{ appointment.doctor.name }}<small>{{ appointment.doctor.specialty }}</small></span>
+                    </div>
+                  </td>
+                  <td>{{ appointment.date|date:'M d, Y' }}</td>
                     <td>{{ appointment.time }}</td>
                     <td>
                         {% if appointment.status == 'PENDING' %}
@@ -75,22 +256,146 @@
                             <span class="status-badge bg-status-pending">{{ appointment.get_status_display }}</span>
                         {% endif %}
                     </td>
-                    <td>
-                        {% if appointment.status == 'COMPLETED' or appointment.status == 'CANCELLED' or appointment.status == 'NO_SHOW' %}
-                            <span class="text-muted small">No actions</span>
-                        {% else %}
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-sm btn-outline-primary patient-action-btn">Reschedule</a>
-                                <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-outline-danger patient-action-btn" onclick="return confirm('Cancel this appointment?')">Cancel</a>
-                            </div>
-                        {% endif %}
-                    </td>
+                    <td><span class="appointment-detail-hint"><i class="bi bi-arrow-up-right-circle me-1"></i>View details</span></td>
                 </tr>
                 {% empty %}
                 <tr><td colspan="5" class="text-center text-muted">You have no appointments yet.</td></tr>
                 {% endfor %}
             </tbody>
+            <tbody data-appointment-list-body="archived" hidden>
+              {% for appointment in archived_appointments %}
+              <tr class="appointment-row" data-appointment-modal="appointmentDetailsModal{{ appointment.id }}" role="button" tabindex="0" aria-label="View archived appointment with {{ appointment.doctor.name }}">
+                <td><div class="appointment-doctor">{% if appointment.doctor.photo %}<img class="appointment-doctor-avatar" src="{{ appointment.doctor.photo.url }}" alt="{{ appointment.doctor.name }}">{% else %}<span class="appointment-doctor-avatar">{{ appointment.doctor.name|slice:':2'|upper }}</span>{% endif %}<span>{{ appointment.doctor.name }}<small>{{ appointment.doctor.specialty }}</small></span></div></td>
+                <td>{{ appointment.date|date:'M d, Y' }}</td><td>{{ appointment.time }}</td>
+                <td><span class="status-badge bg-status-completed">Archived</span></td><td><span class="appointment-detail-hint">View details</span></td>
+              </tr>
+              {% empty %}<tr><td colspan="5" class="text-center text-muted">No archived appointments.</td></tr>{% endfor %}
+            </tbody>
         </table>
     </div>
 </div>
+
+{% for appointment in all_appointments %}
+<div class="modal fade consultation-detail-modal" id="appointmentDetailsModal{{ appointment.id }}" tabindex="-1" aria-labelledby="appointmentDetailsTitle{{ appointment.id }}" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title-wrap w-100">
+          <div class="title-icon"><i class="bi bi-clipboard-pulse"></i></div>
+          <div>
+            <h5 class="modal-title mb-0" id="appointmentDetailsTitle{{ appointment.id }}">Consultation summary</h5>
+            <small class="text-muted">Visit details and treatment record</small>
+          </div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="info-strip">
+          <span class="info-pill"><strong>{{ appointment.doctor.name }}</strong></span>
+          <span class="info-pill">{{ appointment.doctor.specialty }}</span>
+          <span class="info-pill">{{ appointment.date }} • {{ appointment.time }}</span>
+          <span class="info-pill">Fee: ₱{{ appointment.consultation_fee }}</span>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="detail-block">
+              <span class="detail-label">Reason for visit</span>
+              <div class="text-muted">{{ appointment.notes|default:'No reason provided.' }}</div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="detail-block">
+              <span class="detail-label">Medical summary</span>
+              <div class="text-muted">{{ appointment.medical_summary|default:'No medical summary recorded.' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="detail-block h-100">
+              <span class="detail-label">Medication prescribed</span>
+              {% if appointment.medications_used %}
+                <ul class="list-group list-group-flush">
+                  {% for item in appointment.medications_used %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span>{{ item.name }}</span>
+                    <span class="badge bg-primary-subtle text-primary">{{ item.quantity }} qty</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <div class="text-muted">No medication prescribed.</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="detail-block h-100">
+              <span class="detail-label">Supplies used</span>
+              {% if appointment.supplies_used %}
+                <ul class="list-group list-group-flush">
+                  {% for item in appointment.supplies_used %}
+                  <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                    <span>{{ item.name }}</span>
+                    <span class="badge bg-secondary-subtle text-secondary">{{ item.quantity }} qty</span>
+                  </li>
+                  {% endfor %}
+                </ul>
+              {% else %}
+                <div class="text-muted">No clinic supplies recorded.</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        {% if appointment.patient_archived %}
+        <form method="post" action="{% url 'restore_appointment' appointment.id %}" class="d-flex justify-content-end mt-4" data-confirm-form data-confirm-type="success" data-confirm-title="Restore Appointment?" data-confirm-message="This appointment will return to your active appointment list." data-confirm-text="Restore Appointment">{% csrf_token %}<button class="btn btn-outline-primary" type="submit"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore appointment</button></form>
+        {% else %}
+        <div class="d-flex justify-content-between align-items-center gap-2 mt-4">
+          <form method="post" action="{% url 'archive_appointment' appointment.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Archive Appointment?" data-confirm-message="This appointment will be hidden from your active list. You can restore it later from Archived appointments." data-confirm-text="Archive Appointment">{% csrf_token %}<button class="btn btn-outline-secondary" type="submit"><i class="bi bi-archive me-1"></i>Archive appointment</button></form>
+          {% if appointment.status != 'COMPLETED' and appointment.status != 'CANCELLED' and appointment.status != 'NO_SHOW' %}
+          <div class="d-flex justify-content-end gap-2">
+          <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-outline-primary patient-action-btn">Reschedule</a>
+          <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-outline-danger patient-action-btn" data-confirm data-confirm-type="danger" data-confirm-title="Cancel Appointment?" data-confirm-message="Are you sure you want to cancel this appointment?" data-confirm-text="Cancel Appointment">Cancel</a>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+</div>
+<script>
+  document.querySelectorAll('[data-appointment-modal]').forEach(function (row) {
+    function openDetails() {
+      const modalElement = document.getElementById(row.dataset.appointmentModal);
+      if (modalElement) bootstrap.Modal.getOrCreateInstance(modalElement).show();
+    }
+    row.addEventListener('click', function (event) {
+      if (!event.target.closest('a, button')) openDetails();
+    });
+    row.addEventListener('keydown', function (event) {
+      if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('a, button')) {
+        event.preventDefault();
+        openDetails();
+      }
+    });
+  });
+  document.querySelectorAll('[data-appointment-list]').forEach(function (button) {
+    button.addEventListener('click', function () {
+      const selectedList = this.dataset.appointmentList;
+      document.querySelectorAll('[data-appointment-list-body]').forEach(function (body) {
+        body.hidden = body.dataset.appointmentListBody !== selectedList;
+      });
+      document.querySelectorAll('[data-appointment-list]').forEach(function (tabButton) {
+        const active = tabButton === button;
+        tabButton.classList.toggle('btn-primary', active);
+        tabButton.classList.toggle('btn-outline-primary', !active);
+      });
+    });
+  });
+</script>
 {% endblock %}

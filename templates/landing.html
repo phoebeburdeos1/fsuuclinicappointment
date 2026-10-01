@@ -25,7 +25,11 @@
                 <h1 class="section-title mb-3">Healthcare Made Simple. Book Your Doctor's Visit Online.</h1>
                 <p class="lead muted-text mb-4">Fast, seamless, and hassle-free appointment scheduling with top specialists. Find a doctor, choose a time, and get confirmed in minutes.</p>
                 <div class="d-flex flex-wrap gap-3 mb-4">
-                    <a href="{% if user.is_authenticated and user.role == 'PATIENT' %}{% url 'patient_dashboard' %}{% else %}{% url 'register' %}{% endif %}" class="btn btn-primary btn-lg px-4">Book an Appointment</a>
+                    {% if user.is_authenticated and user.role == 'PATIENT' %}
+                        <a href="{% url 'patient_dashboard' %}" class="btn btn-primary btn-lg px-4">Book an Appointment</a>
+                    {% else %}
+                        <button type="button" class="btn btn-primary btn-lg px-4" data-bs-toggle="modal" data-bs-target="#authModal">Book an Appointment</button>
+                    {% endif %}
                     <a href="#doctors" class="btn btn-outline-primary btn-lg px-4">Find a Doctor</a>
                 </div>
 
@@ -247,8 +251,115 @@
     </div>
 </footer>
 
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="authModalLabel">Access your account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div id="loginPane">
+                    <div class="card border-0 bg-light p-3 mb-3">
+                        <div class="text-center mb-2">
+                            <div class="login-badge mx-auto mb-3">
+                                <i class="bi bi-hospital"></i>
+                            </div>
+                            <h4 class="mb-1">Welcome back</h4>
+                            <p class="text-muted mb-0">Sign in to book your appointment.</p>
+                        </div>
+                        <form method="post" action="{% url 'login' %}">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="login_modal_username" class="form-label fw-semibold">Username or email</label>
+                                <input type="text" class="form-control" id="login_modal_username" name="username" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="login_modal_password" class="form-label fw-semibold">Password</label>
+                                <div class="modal-password-wrap">
+                                    <input type="password" class="form-control" id="login_modal_password" name="password" required>
+                                    <button type="button" class="password-toggle modal-password-toggle" data-password-target="login_modal_password" aria-label="Show password" title="Show password"><i class="bi bi-eye"></i></button>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Sign in</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="registerPane" style="display:none;">
+                    <div class="card border-0 bg-light p-3 mb-3">
+                        <div class="text-center mb-2">
+                            <h4 class="mb-1">Create an account</h4>
+                            <p class="text-muted mb-0">Register to continue with booking.</p>
+                        </div>
+                        <form method="post" action="{% url 'register' %}">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="register_modal_username" class="form-label fw-semibold">Username</label>
+                                    <input type="text" class="form-control" id="register_modal_username" name="username" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="register_modal_email" class="form-label fw-semibold">Email</label>
+                                    <input type="email" class="form-control" id="register_modal_email" name="email" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="register_modal_password1" class="form-label fw-semibold">Password</label>
+                                    <input type="password" class="form-control" id="register_modal_password1" name="password1" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="register_modal_password2" class="form-label fw-semibold">Confirm password</label>
+                                    <input type="password" class="form-control" id="register_modal_password2" name="password2" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-3">Create account</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-center small text-muted mt-2">
+                    <span id="toggleAuthText">Don't have an account? <a href="#" class="text-primary fw-semibold text-decoration-none" id="toggleAuthLink">Sign up</a></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const loginPane = document.getElementById('loginPane');
+        const registerPane = document.getElementById('registerPane');
+        const toggleAuthText = document.getElementById('toggleAuthText');
+
+        if (toggleAuthText) {
+            toggleAuthText.addEventListener('click', function (event) {
+                const target = event.target.closest('a');
+                if (!target) return;
+                event.preventDefault();
+                const showRegister = loginPane.style.display !== 'none';
+                loginPane.style.display = showRegister ? 'none' : 'block';
+                registerPane.style.display = showRegister ? 'block' : 'none';
+                if (showRegister) {
+                    toggleAuthText.innerHTML = 'Already have an account? <a href="#" class="text-primary fw-semibold text-decoration-none">Log in</a>';
+                } else {
+                    toggleAuthText.innerHTML = 'Don\'t have an account? <a href="#" class="text-primary fw-semibold text-decoration-none">Sign up</a>';
+                }
+            });
+        }
+
+        document.querySelectorAll('[data-password-target]').forEach(function (toggle) {
+            toggle.addEventListener('click', function () {
+                const passwordField = document.getElementById(toggle.dataset.passwordTarget);
+                if (!passwordField) return;
+                const showPassword = passwordField.type === 'password';
+                passwordField.type = showPassword ? 'text' : 'password';
+                toggle.innerHTML = showPassword ? '<i class="bi bi-eye-slash"></i>' : '<i class="bi bi-eye"></i>';
+                toggle.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+                toggle.title = showPassword ? 'Hide password' : 'Show password';
+                passwordField.focus();
+            });
+        });
+
         const doctorInfoModal = new bootstrap.Modal(document.getElementById('doctorInfoModal'));
         const detailName = document.getElementById('detailName');
         const detailSpecialty = document.getElementById('detailSpecialty');

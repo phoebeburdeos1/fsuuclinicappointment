@@ -1,0 +1,43 @@
+<header class="portal-header">
+    <div class="portal-header-greeting">
+        <div class="portal-header-copy">
+            <span class="portal-header-eyebrow">{{ request.user.role|title }} portal</span>
+            <h1>Hello, {% if request.user.first_name %}{{ request.user.first_name }}{% else %}{{ request.user.username }}{% endif %}!</h1>
+        </div>
+    </div>
+    <div class="portal-header-actions">
+        <label class="portal-search" aria-label="Search portal">
+            <i class="bi bi-search" aria-hidden="true"></i>
+            <input type="search" placeholder="Search...">
+        </label>
+        <a class="portal-icon-button" href="{% url 'messages_page' %}" aria-label="Messages" title="Messages"><i class="bi bi-envelope"></i><span id="messagesBadge" class="portal-notification-badge" hidden>0</span></a>
+        <a class="portal-icon-button" href="{% if request.user.role == 'PATIENT' %}{% url 'my_appointments' %}{% else %}{% url 'admin_dashboard' %}{% endif %}" aria-label="Calendar" title="Calendar"><i class="bi bi-calendar3"></i></a>
+        <div class="portal-notification-wrap">
+            <button class="portal-icon-button" type="button" data-notification-trigger aria-label="Notifications" title="Notifications"><i class="bi bi-bell"></i><span id="notificationBadge" class="portal-notification-badge" hidden>0</span></button>
+            <div class="portal-notification-menu" data-notification-menu hidden>
+                <div class="portal-notification-title">Notifications</div>
+                <div id="notificationItems" class="portal-notification-items"><div class="px-3 py-3 text-muted small">No new notifications.</div></div>
+            </div>
+        </div>
+        <div class="portal-profile-wrap">
+            <button class="portal-avatar-button" type="button" data-profile-trigger aria-expanded="false" aria-label="Open profile menu">
+                {% if request.user.photo %}
+                    <img src="{{ request.user.photo.url }}" alt="{{ request.user.get_full_name|default:request.user.username }}">
+                {% else %}
+                    <span>{{ request.user.first_name|default:request.user.username|slice:':1'|upper }}</span>
+                {% endif %}
+                <span class="portal-online-dot"></span>
+            </button>
+            <div class="portal-profile-menu" data-profile-menu hidden>
+                <div class="portal-profile-info">
+                    <strong>{{ request.user.get_full_name|default:request.user.username }}</strong>
+                    <small>{{ request.user.email|default:request.user.username }}</small>
+                </div>
+                <a href="{% if request.user.role == 'PATIENT' %}{% url 'profile_update' %}{% else %}{% url 'admin_dashboard' %}{% endif %}"><i class="bi bi-gear"></i> Account Settings</a>
+                <a href="{% url 'user_profile' request.user.id %}"><i class="bi bi-person"></i> View Profile</a>
+                <button type="button" data-theme-toggle><i class="bi bi-moon-stars"></i> Toggle Dark Mode</button>
+                <a class="portal-profile-logout" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right"></i> Log Out</a>
+            </div>
+        </div>
+    </div>
+</header>

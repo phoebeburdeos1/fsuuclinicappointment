@@ -15,11 +15,24 @@ from .utils import is_default_admin
 
 
 def landing_page(request):
-    if request.user.is_authenticated and is_default_admin(request.user):
-        return redirect('admin_dashboard')
+    if request.user.is_authenticated:
+        if is_default_admin(request.user):
+            return redirect('admin_dashboard')
+        if request.user.role == UserRole.STAFF:
+            return redirect('staff_dashboard')
+        if request.user.role == UserRole.ADMIN:
+            return redirect('admin_dashboard')
 
     doctors = [doctor for doctor in Doctor.objects.filter(is_archived=False).order_by('name') if doctor.is_publicly_visible()]
-    return render(request, 'landing.html', {'doctors': doctors})
+    return render(
+        request,
+        'landing.html',
+        {
+            'doctors': doctors,
+            'login_form': LoginForm(request),
+            'register_form': RegisterForm(),
+        },
+    )
 
 
 def home_view(request):
@@ -46,8 +59,10 @@ def login_view(request):
     if request.user.is_authenticated:
         if is_default_admin(request.user):
             return redirect('admin_dashboard')
+        if request.user.role == UserRole.STAFF:
+            return redirect('staff_dashboard')
         if request.user.role == UserRole.ADMIN:
-            return redirect('landing_page')
+            return redirect('admin_dashboard')
         return redirect('patient_dashboard')
 
     form = LoginForm(request, data=request.POST or None)
@@ -56,8 +71,10 @@ def login_view(request):
         messages.success(request, f'Welcome back, {request.user.username}!')
         if is_default_admin(request.user):
             return redirect('admin_dashboard')
+        if request.user.role == UserRole.STAFF:
+            return redirect('staff_dashboard')
         if request.user.role == UserRole.ADMIN:
-            return redirect('landing_page')
+            return redirect('admin_dashboard')
         return redirect('patient_dashboard')
 
     return render(request, 'registration/login.html', {'form': form})
@@ -70,7 +87,7 @@ def logout_view(request):
 
 @login_required
 def messages_page(request):
-    if request.user.role == UserRole.ADMIN:
+    if request.user.role in {UserRole.ADMIN, UserRole.STAFF}:
         contacts = User.objects.filter(role=UserRole.PATIENT).order_by('username')
         home_url = '/admin-dashboard/'
     else:
@@ -96,7 +113,7 @@ def messages_page(request):
             Message.objects.filter(recipient=request.user, sender=selected_contact, is_read=False).update(is_read=True)
             unread_counts[selected_contact.id] = 0
 
-            if selected_contact.role == UserRole.PATIENT and request.user.role == UserRole.ADMIN:
+            if selected_contact.role == UserRole.PATIENT and request.user.role in {UserRole.ADMIN, UserRole.STAFF}:
                 selected_contact_profile_url = f'/admin/patient/{selected_contact.id}/'
             elif selected_contact.role == UserRole.ADMIN and request.user.role == UserRole.PATIENT:
                 selected_contact_profile_url = f'/profile/view/{selected_contact.id}/'
@@ -106,9 +123,9 @@ def messages_page(request):
                 selected_contact_profile_url = '#profile-modal'
 
             recent_appt_qs = None
-            if request.user.role == UserRole.ADMIN and selected_contact.role == UserRole.PATIENT:
+            if request.user.role in {UserRole.ADMIN, UserRole.STAFF} and selected_contact.role == UserRole.PATIENT:
                 recent_appt_qs = selected_contact.appointments.filter(status__in=['COMPLETED', 'CONFIRMED', 'CANCELLED']).order_by('-date', '-time')[:3]
-            elif request.user.role == UserRole.PATIENT and selected_contact.role == UserRole.ADMIN:
+            elif request.user.role == UserRole.PATIENT and selected_contact.role in {UserRole.ADMIN, UserRole.STAFF}:
                 recent_appt_qs = selected_contact.appointments.filter(status__in=['COMPLETED', 'CONFIRMED', 'CANCELLED']).order_by('-date', '-time')[:3]
 
             if recent_appt_qs is not None:
@@ -147,11 +164,11 @@ def send_message(request):
         messages.error(request, 'The recipient could not be found.')
         return redirect('messages_page')
 
-    if request.user.role == UserRole.ADMIN and recipient.role != UserRole.PATIENT:
-        messages.error(request, 'Admins can only message patients.')
+    if request.user.role in {UserRole.ADMIN, UserRole.STAFF} and recipient.role != UserRole.PATIENT:
+        messages.error(request, 'Clinic staff can only message patients.')
         return redirect('messages_page')
-    if request.user.role == UserRole.PATIENT and recipient.role != UserRole.ADMIN:
-        messages.error(request, 'Patients can only message the clinic admin.')
+    if request.user.role == UserRole.PATIENT and recipient.role not in {UserRole.ADMIN, UserRole.STAFF}:
+        messages.error(request, 'Patients can only message clinic staff.')
         return redirect('messages_page')
 
     Message.objects.create(sender=request.user, recipient=recipient, subject=subject, body=body)
@@ -161,18 +178,20 @@ def send_message(request):
 
 @login_required
 def notification_payload(request):
-    notifications = Message.objects.filter(recipient=request.user, is_read=False).select_related('sender').order_by('-created_at')[:5]
+    unread_messages = Message.objects.filter(recipient=request.user, is_read=False)
+    unread_count = unread_messages.count()
+    notifications = unread_messages.select_related('sender').order_by('-created_at')[:5]
     items = [
         {
             'id': item.id,
             'sender': item.sender.get_full_name() or item.sender.username,
             'subject': item.subject or 'New message',
             'body': item.body[:80],
-            'url': f"/messages/?recipient={item.sender.id}",
+            'url': '/dashboard/appointments/' if item.appointment_id and request.user.role == UserRole.PATIENT else f"/messages/?recipient={item.sender.id}",
         }
         for item in notifications
     ]
-    return JsonResponse({'count': len(items), 'items': items})
+    return JsonResponse({'count': unread_count, 'message_count': unread_count, 'items': items})
 
 
 @login_required
@@ -181,14 +200,53 @@ def user_profile_detail(request, user_id):
 
     if request.user.role == UserRole.ADMIN and target_user.role == UserRole.PATIENT:
         appointments = Appointment.objects.filter(patient=target_user).select_related('doctor').order_by('-date', '-time')[:5]
-        return render(request, 'profile_view.html', {'profile_user': target_user, 'appointments': appointments})
+        home_url = '/admin-dashboard/'
+        fallback_url = '/messages/'
+        edit_url = '/admin-dashboard/'
+        return render(
+            request,
+            'profile_view.html',
+            {
+                'profile_user': target_user,
+                'appointments': appointments,
+                'home_url': home_url,
+                'fallback_url': fallback_url,
+                'edit_url': edit_url,
+            },
+        )
 
     if request.user.role == UserRole.PATIENT and target_user.role in {UserRole.ADMIN, UserRole.PATIENT}:
         appointments = Appointment.objects.filter(patient=request.user).select_related('doctor').order_by('-date', '-time')[:5]
-        return render(request, 'profile_view.html', {'profile_user': target_user, 'appointments': appointments})
+        home_url = '/dashboard/'
+        fallback_url = '/messages/'
+        edit_url = '/dashboard/profile/'
+        return render(
+            request,
+            'profile_view.html',
+            {
+                'profile_user': target_user,
+                'appointments': appointments,
+                'home_url': home_url,
+                'fallback_url': fallback_url,
+                'edit_url': edit_url,
+            },
+        )
 
     if request.user == target_user:
         appointments = Appointment.objects.filter(patient=request.user).select_related('doctor').order_by('-date', '-time')[:5]
-        return render(request, 'profile_view.html', {'profile_user': target_user, 'appointments': appointments})
+        home_url = '/dashboard/'
+        fallback_url = '/dashboard/'
+        edit_url = '/dashboard/profile/'
+        return render(
+            request,
+            'profile_view.html',
+            {
+                'profile_user': target_user,
+                'appointments': appointments,
+                'home_url': home_url,
+                'fallback_url': fallback_url,
+                'edit_url': edit_url,
+            },
+        )
 
     return redirect('messages_page')

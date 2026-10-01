@@ -141,6 +141,9 @@
         .password-field {
             position: relative;
         }
+        .modal-password-wrap { position: relative; }
+        .modal-password-wrap .form-control { padding-right: 3rem; }
+        .modal-password-toggle { right: 0.65rem; }
         .password-field .form-control {
             padding-right: 52px;
         }
@@ -174,6 +177,252 @@
         .text-primary {
             color: var(--primary) !important;
         }
+        .global-confirm-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 1090;
+            display: grid;
+            place-items: center;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.52);
+            backdrop-filter: blur(5px);
+        }
+        .global-confirm-backdrop[hidden] { display: none; }
+        .global-confirm-card {
+            width: min(100%, 430px);
+            padding: 1.5rem;
+            border: 1px solid #f1f5f9;
+            border-radius: 24px;
+            background: #fff;
+            box-shadow: 0 28px 75px rgba(15, 23, 42, 0.28);
+            animation: confirmModalIn 0.18s ease-out;
+        }
+        .global-confirm-icon { display: grid; width: 48px; height: 48px; place-items: center; margin-bottom: 1rem; border-radius: 16px; font-size: 1.2rem; }
+        .global-confirm-card[data-type="warning"] .global-confirm-icon { color: #d97706; background: #fffbeb; }
+        .global-confirm-card[data-type="danger"] .global-confirm-icon { color: #e11d48; background: #fff1f2; }
+        .global-confirm-card[data-type="info"] .global-confirm-icon { color: #2563eb; background: #eff6ff; }
+        .global-confirm-card[data-type="success"] .global-confirm-icon { color: #059669; background: #ecfdf5; }
+        .global-confirm-title { margin: 0 0 0.4rem; color: #0f172a; font-size: 1.2rem; font-weight: 900; }
+        .global-confirm-message { margin: 0 0 1.5rem; color: #64748b; font-size: 0.88rem; line-height: 1.6; }
+        .global-confirm-actions { display: flex; justify-content: flex-end; gap: 0.65rem; }
+        .global-confirm-button { min-width: 100px; padding: 0.65rem 1rem; border: 0; border-radius: 12px; font-size: 0.8rem; font-weight: 800; transition: background 0.15s ease, transform 0.15s ease; }
+        .global-confirm-button:hover { transform: translateY(-1px); }
+        .global-confirm-cancel { color: #475569; background: #f1f5f9; }
+        .global-confirm-cancel:hover { background: #e2e8f0; }
+        .global-confirm-submit { color: #fff; }
+        .global-confirm-card[data-type="warning"] .global-confirm-submit { background: #d97706; box-shadow: 0 6px 15px rgba(245,158,11,.2); }
+        .global-confirm-card[data-type="warning"] .global-confirm-submit:hover { background: #b45309; }
+        .global-confirm-card[data-type="danger"] .global-confirm-submit { background: #e11d48; box-shadow: 0 6px 15px rgba(244,63,94,.2); }
+        .global-confirm-card[data-type="danger"] .global-confirm-submit:hover { background: #be123c; }
+        .global-confirm-card[data-type="info"] .global-confirm-submit { background: #2563eb; box-shadow: 0 6px 15px rgba(59,130,246,.2); }
+        .global-confirm-card[data-type="info"] .global-confirm-submit:hover { background: #1d4ed8; }
+        .global-confirm-card[data-type="success"] .global-confirm-submit { background: #059669; box-shadow: 0 6px 15px rgba(16,185,129,.2); }
+        .global-confirm-card[data-type="success"] .global-confirm-submit:hover { background: #047857; }
+        @keyframes confirmModalIn { from { opacity: 0; transform: scale(.97) translateY(5px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .portal-header {
+            position: sticky;
+            top: 0;
+            z-index: 30;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.25rem;
+            min-height: 78px;
+            margin: 0 -1.15rem 1.1rem;
+            padding: 0.85rem 1.5rem;
+            background: color-mix(in srgb, var(--panel-solid) 88%, transparent);
+            border-bottom: 1px solid var(--border);
+            backdrop-filter: blur(14px);
+        }
+        .portal-header-eyebrow {
+            display: block;
+            color: var(--muted);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .portal-header-greeting { display: flex; align-items: center; gap: 0.75rem; }
+        .portal-header-copy { min-width: 0; }
+        .portal-sidebar-toggle {
+            display: grid;
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            place-items: center;
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            color: var(--muted);
+            background: var(--panel-solid);
+            transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+        }
+        .portal-sidebar-toggle:hover { color: var(--accent-strong); background: var(--card-alt); border-color: var(--accent); }
+        .portal-sidebar-toggle i { font-size: 1rem; }
+        .portal-header h1 {
+            margin: 0.15rem 0 0;
+            color: var(--text-strong);
+            font-size: 1.15rem;
+            font-weight: 800;
+        }
+        .portal-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 0.55rem;
+        }
+        .portal-search {
+            position: relative;
+            width: 15rem;
+        }
+        .portal-search i {
+            position: absolute;
+            top: 50%;
+            left: 0.9rem;
+            color: var(--muted);
+            transform: translateY(-50%);
+        }
+        .portal-search input {
+            width: 100%;
+            padding: 0.62rem 1rem 0.62rem 2.35rem;
+            border: 0;
+            border-radius: 999px;
+            outline: 0;
+            color: var(--text);
+            background: var(--card-alt);
+            transition: width 0.2s ease, box-shadow 0.2s ease;
+        }
+        .portal-search input:focus {
+            width: 18rem;
+            box-shadow: 0 0 0 0.2rem rgba(14, 165, 233, 0.15);
+        }
+        .portal-icon-button,
+        .portal-avatar-button {
+            position: relative;
+            display: grid;
+            width: 40px;
+            height: 40px;
+            place-items: center;
+            border: 1px solid transparent;
+            border-radius: 50%;
+            color: var(--muted);
+            background: var(--card-alt);
+            text-decoration: none;
+            transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        }
+        .portal-icon-button:hover,
+        .portal-avatar-button:hover {
+            color: var(--accent-strong);
+            background: var(--border);
+        }
+        .portal-profile-wrap { position: relative; }
+        .portal-notification-wrap { position: relative; }
+        .portal-notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            border: 2px solid var(--panel-solid);
+            border-radius: 999px;
+            color: #fff;
+            background: #ef4444;
+            font-size: 0.58rem;
+            line-height: 12px;
+            text-align: center;
+        }
+        .portal-notification-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            width: 19rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel-solid);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
+            animation: portalMenuIn 0.16s ease;
+        }
+        .portal-notification-menu[hidden] { display: none; }
+        .portal-notification-title { padding: 0.8rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-strong); font-size: 0.8rem; font-weight: 800; }
+        .portal-notification-items { max-height: 18rem; overflow-y: auto; }
+        .portal-notification-items .list-group-item { color: var(--text); background: transparent; border-color: var(--border); }
+        .portal-avatar-button {
+            overflow: visible;
+            border: 2px solid var(--border);
+            color: var(--accent-strong);
+            background: #dbeafe;
+            font-weight: 800;
+        }
+        .portal-avatar-button img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .portal-online-dot {
+            position: absolute;
+            right: -1px;
+            bottom: -1px;
+            width: 12px;
+            height: 12px;
+            border: 2px solid var(--panel-solid);
+            border-radius: 50%;
+            background: #10b981;
+        }
+        .portal-profile-menu {
+            position: absolute;
+            top: calc(100% + 0.75rem);
+            right: 0;
+            width: 14rem;
+            padding: 0.45rem 0;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            background: var(--panel-solid);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.16);
+            animation: portalMenuIn 0.16s ease;
+        }
+        .portal-profile-menu[hidden] { display: none; }
+        .portal-profile-info {
+            padding: 0.55rem 1rem 0.7rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .portal-profile-info strong,
+        .portal-profile-info small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .portal-profile-info strong { color: var(--text-strong); font-size: 0.82rem; }
+        .portal-profile-info small { margin-top: 0.15rem; color: var(--muted); font-size: 0.7rem; }
+        .portal-profile-menu a,
+        .portal-profile-menu button {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.62rem 1rem;
+            border: 0;
+            color: var(--text);
+            background: transparent;
+            font: inherit;
+            font-size: 0.78rem;
+            text-align: left;
+            text-decoration: none;
+        }
+        .portal-profile-menu a:hover,
+        .portal-profile-menu button:hover { background: var(--card-alt); }
+        .portal-profile-menu .portal-profile-logout {
+            margin-top: 0.35rem;
+            border-top: 1px solid var(--border);
+            color: #e11d48;
+        }
+        @keyframes portalMenuIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @media (max-width: 760px) {
+            .portal-header { align-items: flex-start; flex-direction: column; padding: 0.9rem 1rem; }
+            .portal-header-actions { width: 100%; }
+            .portal-search { flex: 1 1 auto; width: auto; }
+            .portal-search input:focus { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -187,6 +436,18 @@
         {% block content %}{% endblock %}
     </div>
 
+    <div class="global-confirm-backdrop" id="globalConfirmModal" hidden>
+        <section class="global-confirm-card" data-type="warning" role="alertdialog" aria-modal="true" aria-labelledby="globalConfirmTitle" aria-describedby="globalConfirmMessage">
+            <div class="global-confirm-icon"><i class="bi bi-exclamation-triangle-fill" data-confirm-icon></i></div>
+            <h2 class="global-confirm-title" id="globalConfirmTitle">Confirm action</h2>
+            <p class="global-confirm-message" id="globalConfirmMessage">Are you sure you want to continue?</p>
+            <div class="global-confirm-actions">
+                <button class="global-confirm-button global-confirm-cancel" type="button" data-confirm-cancel>Cancel</button>
+                <button class="global-confirm-button global-confirm-submit" type="button" data-confirm-submit>Confirm</button>
+            </div>
+        </section>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         (function () {
@@ -195,7 +456,93 @@
             document.body.setAttribute('data-theme', preferredTheme);
 
             document.addEventListener('DOMContentLoaded', function () {
+                const confirmBackdrop = document.getElementById('globalConfirmModal');
+                const confirmCard = confirmBackdrop.querySelector('.global-confirm-card');
+                const confirmTitle = document.getElementById('globalConfirmTitle');
+                const confirmMessage = document.getElementById('globalConfirmMessage');
+                const confirmIcon = confirmBackdrop.querySelector('[data-confirm-icon]');
+                const confirmButton = confirmBackdrop.querySelector('[data-confirm-submit]');
+                let pendingConfirmation = null;
+                const confirmIcons = {
+                    warning: 'bi bi-archive-fill',
+                    danger: 'bi bi-trash3-fill',
+                    info: 'bi bi-arrow-repeat',
+                    success: 'bi bi-arrow-counterclockwise'
+                };
+
+                function openConfirmation(trigger, form) {
+                    pendingConfirmation = { trigger: trigger, form: form };
+                    const type = trigger.dataset.confirmType || 'warning';
+                    confirmCard.dataset.type = type;
+                    confirmIcon.className = confirmIcons[type] || confirmIcons.warning;
+                    confirmTitle.textContent = trigger.dataset.confirmTitle || 'Confirm action';
+                    const statusSelect = form && form.querySelector('select[name="status"]');
+                    const statusLabel = statusSelect && statusSelect.selectedOptions.length ? statusSelect.selectedOptions[0].textContent.trim() : '';
+                    confirmMessage.textContent = statusLabel && trigger.dataset.confirmStatusUpdate === 'true'
+                        ? 'Are you sure you want to change this appointment status to ' + statusLabel + '?'
+                        : (trigger.dataset.confirmMessage || 'Are you sure you want to continue?');
+                    confirmButton.textContent = trigger.dataset.confirmText || 'Confirm';
+                    confirmBackdrop.hidden = false;
+                    confirmButton.focus();
+                }
+
+                function closeConfirmation() {
+                    confirmBackdrop.hidden = true;
+                    pendingConfirmation = null;
+                }
+
+                document.addEventListener('click', function (event) {
+                    const trigger = event.target.closest('[data-confirm]');
+                    if (!trigger) return;
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openConfirmation(trigger, trigger.form || null);
+                }, true);
+                document.addEventListener('submit', function (event) {
+                    const form = event.target.closest('form[data-confirm-form]');
+                    if (!form) return;
+                    if (form.dataset.confirmBypass === 'true') {
+                        delete form.dataset.confirmBypass;
+                        return;
+                    }
+                    event.preventDefault();
+                    openConfirmation(form, form);
+                });
+                confirmBackdrop.addEventListener('click', function (event) {
+                    if (event.target === confirmBackdrop || event.target.closest('[data-confirm-cancel]')) closeConfirmation();
+                });
+                document.addEventListener('keydown', function (event) {
+                    if (event.key === 'Escape' && !confirmBackdrop.hidden) closeConfirmation();
+                });
+                confirmButton.addEventListener('click', async function () {
+                    if (!pendingConfirmation) return;
+                    const pending = pendingConfirmation;
+                    closeConfirmation();
+                    if (pending.trigger.dataset.confirmFetchUrl) {
+                        const cookie = document.cookie.split('; ').find((item) => item.startsWith('csrftoken='));
+                        const csrfToken = pending.trigger.dataset.csrfToken || (cookie ? cookie.split('=')[1] : '');
+                        const body = new URLSearchParams({ status: pending.trigger.dataset.confirmStatus || '' });
+                        await fetch(pending.trigger.dataset.confirmFetchUrl, {
+                            method: 'POST',
+                            headers: { 'X-CSRFToken': csrfToken, 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: body,
+                            credentials: 'same-origin'
+                        });
+                        window.location.reload();
+                    } else if (pending.form) {
+                        pending.form.dataset.confirmBypass = 'true';
+                        if (pending.trigger.form === pending.form && pending.trigger.matches('button[type="submit"]')) {
+                            pending.form.requestSubmit(pending.trigger);
+                        } else {
+                            pending.form.requestSubmit();
+                        }
+                    } else if (pending.trigger.href) {
+                        window.location.assign(pending.trigger.href);
+                    }
+                });
+
                 const badge = document.getElementById('notificationBadge');
+                const messageBadge = document.getElementById('messagesBadge');
                 const itemsEl = document.getElementById('notificationItems');
                 const url = '{% url "notification_payload" %}';
 
@@ -224,17 +571,75 @@
                     el.textContent = document.body.getAttribute('data-theme') === 'dark' ? 'Light' : 'Dark';
                 });
 
+                document.querySelectorAll('[data-profile-trigger]').forEach(function (trigger) {
+                    trigger.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        const menu = trigger.parentElement.querySelector('[data-profile-menu]');
+                        const isOpen = !menu.hidden;
+                        document.querySelectorAll('[data-profile-menu]').forEach(function (item) { item.hidden = true; });
+                        document.querySelectorAll('[data-profile-trigger]').forEach(function (item) { item.setAttribute('aria-expanded', 'false'); });
+                        menu.hidden = isOpen;
+                        trigger.setAttribute('aria-expanded', String(!isOpen));
+                    });
+                });
+                document.addEventListener('click', function () {
+                    document.querySelectorAll('[data-profile-menu]').forEach(function (menu) { menu.hidden = true; });
+                    document.querySelectorAll('[data-notification-menu]').forEach(function (menu) { menu.hidden = true; });
+                    document.querySelectorAll('[data-profile-trigger]').forEach(function (trigger) { trigger.setAttribute('aria-expanded', 'false'); });
+                });
+
+                document.querySelectorAll('[data-notification-trigger]').forEach(function (trigger) {
+                    trigger.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        const menu = trigger.parentElement.querySelector('[data-notification-menu]');
+                        menu.hidden = !menu.hidden;
+                    });
+                });
+
+                const sidebarShells = document.querySelectorAll('.patient-shell, .admin-shell, .staff-shell');
+                const savedSidebarState = localStorage.getItem('fsuu-sidebar-collapsed') === 'true';
+                document.querySelectorAll('[data-sidebar-toggle]').forEach(function (toggle) {
+                    if (!sidebarShells.length) {
+                        toggle.hidden = true;
+                        return;
+                    }
+                    const shell = toggle.closest('.patient-shell, .admin-shell, .staff-shell');
+                    if (!shell) {
+                        toggle.hidden = true;
+                        return;
+                    }
+                    shell.classList.toggle('sidebar-collapsed', savedSidebarState);
+                    toggle.setAttribute('aria-expanded', String(!savedSidebarState));
+                    toggle.setAttribute('aria-label', savedSidebarState ? 'Expand navigation' : 'Collapse navigation');
+                    toggle.title = savedSidebarState ? 'Expand navigation' : 'Collapse navigation';
+                    toggle.addEventListener('click', function () {
+                        const collapsed = shell.classList.toggle('sidebar-collapsed');
+                        localStorage.setItem('fsuu-sidebar-collapsed', String(collapsed));
+                        toggle.setAttribute('aria-expanded', String(!collapsed));
+                        toggle.setAttribute('aria-label', collapsed ? 'Expand navigation' : 'Collapse navigation');
+                        toggle.title = collapsed ? 'Expand navigation' : 'Collapse navigation';
+                    });
+                });
+
                 syncThemeButtons();
 
                 async function refreshNotifications() {
-                    if (!badge || !itemsEl) return;
+                    if (!badge && !messageBadge && !itemsEl) return;
                     try {
                         const response = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                         const data = await response.json();
                         const count = Number(data.count || 0);
-                        badge.textContent = count;
-                        badge.style.display = count > 0 ? 'inline-block' : 'none';
+                        if (badge) {
+                            badge.textContent = count > 99 ? '99+' : count;
+                            badge.hidden = count === 0;
+                        }
+                        if (messageBadge) {
+                            const unreadMessages = Number(data.message_count || 0);
+                            messageBadge.textContent = unreadMessages > 99 ? '99+' : unreadMessages;
+                            messageBadge.hidden = unreadMessages === 0;
+                        }
 
+                        if (!itemsEl) return;
                         if (!count) {
                             itemsEl.innerHTML = '<div class="px-3 py-3 text-muted small">No new notifications.</div>';
                             return;
@@ -254,7 +659,7 @@
                 }
 
                 refreshNotifications();
-                setInterval(refreshNotifications, 15000);
+                setInterval(refreshNotifications, 5000);
             });
         })();
     </script>

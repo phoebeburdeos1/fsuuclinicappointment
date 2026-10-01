@@ -12,4 +12,19 @@ class BookingForm(forms.Form):
     doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), widget=forms.Select(attrs={'class': 'form-select'}))
     date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}))
     time = forms.TimeField(widget=forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}))
-    notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}))
+    visit_type = forms.ChoiceField(
+        required=False,
+        choices=[
+            ('', 'Select a visit type'),
+            ('General Consultation', 'General Consultation'),
+            ('Follow-up Visit', 'Follow-up Visit'),
+            ('Acute Symptoms / Fever', 'Acute Symptoms / Fever'),
+            ('Routine Examination', 'Routine Examination'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-select'}),
+    )
+    notes = forms.CharField(
+        required=True,
+        error_messages={'required': 'Please provide a reason for your visit.'},
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'required': 'required'}),
+    )

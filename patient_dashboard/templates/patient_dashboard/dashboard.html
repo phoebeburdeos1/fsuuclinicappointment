@@ -3,17 +3,36 @@
 {% block content %}
 <style>
     .patient-dashboard-page {
+        --patient-bg: #f8fafc;
+        --patient-panel: #ffffff;
+        --patient-panel-alt: #f8fafc;
+        --patient-text: #334155;
+        --patient-heading: #0f172a;
+        --patient-muted: #64748b;
+        --patient-border: rgba(148, 163, 184, 0.16);
+    }
+    body[data-theme="dark"] .patient-dashboard-page {
+        --patient-bg: #0b1220;
+        --patient-panel: #111827;
+        --patient-panel-alt: #0f172a;
+        --patient-text: #e5edf8;
+        --patient-heading: #f8fafc;
+        --patient-muted: #a5b4c8;
+        --patient-border: rgba(148, 163, 184, 0.22);
+    }
+    .patient-dashboard-page {
         width: 100vw;
         margin-left: calc(50% - 50vw);
         margin-right: calc(50% - 50vw);
         min-height: 100vh;
-        background: #f8fafc;
+        background: var(--patient-bg);
+        color: var(--patient-text);
     }
     .patient-shell {
         display: flex;
         width: 100%;
         min-height: 100vh;
-        background: #f8fafc;
+        background: var(--patient-bg);
         overflow: hidden;
     }
     .patient-sidebar {
@@ -134,7 +153,7 @@
         flex: 1 1 auto;
         min-width: 0;
         overflow-x: hidden;
-        background: #f8fafc;
+        background: var(--patient-bg);
         padding: 0 1.15rem 1.6rem 1.15rem;
         margin-left: 260px;
         min-height: 100vh;
@@ -159,7 +178,8 @@
         margin: 0;
     }
     .section-card {
-        background: #fff;
+        background: var(--patient-panel);
+        color: var(--patient-text);
         border-radius: 16px;
         box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
         border: 1px solid rgba(148, 163, 184, 0.12);
@@ -167,6 +187,7 @@
     }
     .section-card h5 {
         font-weight: 700;
+        color: var(--patient-heading);
         margin-bottom: 0.8rem;
     }
     .stat-card {
@@ -188,6 +209,126 @@
         letter-spacing: -0.05em;
         margin: 0;
     }
+    .vitals-panel {
+        margin-bottom: 1rem;
+        padding: 1rem;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 18px;
+        background: var(--patient-panel);
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.04);
+    }
+    .vitals-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 0.9rem;
+    }
+    .vitals-heading h5 { margin: 0; font-weight: 800; }
+    .vitals-edit {
+        border: 0;
+        border-radius: 9px;
+        padding: 0.4rem 0.7rem;
+        color: #0284c7;
+        background: #e0f2fe;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+    .vitals-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 0.75rem;
+    }
+    .vital-card {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.75rem;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-radius: 16px;
+        background: var(--patient-panel-alt);
+    }
+    .vital-icon {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        flex: 0 0 36px;
+        place-items: center;
+        border-radius: 11px;
+        color: #2563eb;
+        background: rgba(219, 234, 254, 0.75);
+    }
+    .vital-label { color: #64748b; font-size: 0.68rem; font-weight: 700; }
+    .vital-value { color: var(--patient-heading); font-size: 1.05rem; font-weight: 800; }
+    .vital-unit { color: #94a3b8; font-size: 0.65rem; font-weight: 500; }
+    @media (max-width: 991px) { .vitals-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 575px) { .vitals-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .patient-dashboard-page .text-muted,
+    .patient-dashboard-page .subtle,
+    .patient-dashboard-page .stat-label,
+    .patient-dashboard-page .doctor-directory-specialty,
+    .patient-dashboard-page .doctor-directory-meta {
+        color: var(--patient-muted) !important;
+    }
+    .patient-dashboard-page .stat-card,
+    .patient-dashboard-page .quick-action-card,
+    .patient-dashboard-page .doctor-card,
+    .patient-dashboard-page .doctor-directory-card {
+        color: var(--patient-text);
+        background: var(--patient-panel);
+        border-color: var(--patient-border);
+    }
+    .patient-dashboard-page .stat-value,
+    .patient-dashboard-page .doctor-directory-details h6,
+    .patient-dashboard-page .doctor-starting-price,
+    .patient-dashboard-page .quick-action-card h6 {
+        color: var(--patient-heading);
+    }
+    body[data-theme="dark"] .patient-dashboard-page .doctor-format-tag,
+    body[data-theme="dark"] .patient-dashboard-page .doctor-search input,
+    body[data-theme="dark"] .patient-dashboard-page .doctor-filter-chip {
+        color: var(--patient-text);
+        background: var(--patient-panel-alt);
+        border-color: var(--patient-border);
+    }
+    body[data-theme="dark"] .patient-dashboard-page .table {
+        --bs-table-bg: var(--patient-panel);
+        --bs-table-color: var(--patient-text);
+        --bs-table-border-color: var(--patient-border);
+        color: var(--patient-text);
+    }
+    body[data-theme="dark"] .patient-dashboard-page .next-appointment-card,
+    body[data-theme="dark"] .patient-dashboard-page .empty-state-card {
+        color: var(--patient-text);
+        background: var(--patient-panel-alt);
+        border-color: var(--patient-border);
+    }
+    .patient-appointments-table { border-collapse: separate; border-spacing: 0 0.55rem; }
+    .patient-appointments-table thead th {
+        padding: 0 0.75rem 0.35rem;
+        color: var(--patient-muted);
+        border: 0;
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .patient-appointment-row { cursor: pointer; transition: transform 0.2s ease; }
+    .patient-appointment-row:hover { transform: translateY(-2px); }
+    .patient-appointment-row td {
+        padding: 0.8rem 0.75rem;
+        color: var(--patient-text);
+        background: var(--patient-panel-alt);
+        border-top: 1px solid var(--patient-border);
+        border-bottom: 1px solid var(--patient-border);
+        vertical-align: middle;
+    }
+    .patient-appointment-row td:first-child { border-left: 1px solid var(--patient-border); border-radius: 15px 0 0 15px; }
+    .patient-appointment-row td:last-child { border-right: 1px solid var(--patient-border); border-radius: 0 15px 15px 0; }
+    .patient-appointment-doctor { display: flex; align-items: center; gap: 0.6rem; color: var(--patient-heading); font-weight: 800; }
+    .patient-appointment-avatar { display: grid; width: 34px; height: 34px; flex: 0 0 34px; place-items: center; border-radius: 50%; object-fit: cover; color: #1d4ed8; background: #dbeafe; font-size: 0.7rem; }
+    .patient-appointment-doctor small { display: block; color: var(--patient-muted); font-size: 0.68rem; font-weight: 500; }
+    .patient-appointment-hint { color: var(--patient-muted); font-size: 0.68rem; }
     .next-appointment-card {
         background: linear-gradient(135deg, #f8fbff 0%, #eef6ff 100%);
         border: 1px solid rgba(59, 130, 246, 0.12);
@@ -264,6 +405,335 @@
         box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
         height: 100%;
     }
+    .doctor-directory-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    .doctor-search {
+        position: relative;
+        max-width: 420px;
+        flex: 1 1 280px;
+    }
+    .doctor-search i {
+        position: absolute;
+        top: 50%;
+        left: 0.9rem;
+        color: #94a3b8;
+        transform: translateY(-50%);
+    }
+    .doctor-search input {
+        padding-left: 2.5rem;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+    .doctor-filter-chips {
+        display: flex;
+        gap: 0.45rem;
+        margin-bottom: 1.25rem;
+        overflow-x: auto;
+        padding-bottom: 0.2rem;
+        scrollbar-width: thin;
+    }
+    .doctor-filter-chip {
+        flex: 0 0 auto;
+        border: 1px solid #e2e8f0;
+        border-radius: 999px;
+        padding: 0.45rem 0.75rem;
+        color: #64748b;
+        background: #fff;
+        font-size: 0.75rem;
+        font-weight: 700;
+        transition: all 0.2s ease;
+    }
+    .doctor-filter-chip:hover,
+    .doctor-filter-chip.active {
+        border-color: #93c5fd;
+        color: #1d4ed8;
+        background: #eff6ff;
+    }
+    .doctor-directory-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1.25rem;
+    }
+    .doctor-directory-card {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        height: 100%;
+        padding: 0.7rem;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        border-radius: 20px;
+        background: #fff;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .doctor-directory-card:hover {
+        border-color: rgba(59, 130, 246, 0.35);
+        transform: translateY(-3px);
+        box-shadow: 0 18px 34px rgba(15, 23, 42, 0.1);
+    }
+    .doctor-photo-box {
+        position: relative;
+        height: 180px;
+        overflow: hidden;
+        border-radius: 16px;
+        background: #f1f5f9;
+    }
+    .doctor-photo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .doctor-photo-fallback {
+        display: grid;
+        width: 100%;
+        height: 100%;
+        place-items: center;
+        color: #2563eb;
+        background: linear-gradient(135deg, #dbeafe, #eff6ff);
+        font-size: 2rem;
+        font-weight: 800;
+    }
+    .doctor-photo-pill {
+        position: absolute;
+        top: 0.65rem;
+        right: 0.65rem;
+        padding: 0.35rem 0.55rem;
+        border-radius: 999px;
+        color: #047857;
+        background: rgba(236, 253, 245, 0.94);
+        font-size: 0.68rem;
+        font-weight: 800;
+    }
+    .doctor-directory-details {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        padding: 0.85rem 0.25rem 0.25rem;
+    }
+    .doctor-directory-details h6 {
+        margin-bottom: 0.2rem;
+        color: #0f172a;
+        font-size: 0.98rem;
+        font-weight: 800;
+    }
+    .doctor-directory-specialty,
+    .doctor-directory-meta {
+        color: #64748b;
+        font-size: 0.74rem;
+    }
+    .doctor-directory-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        margin-top: 0.7rem;
+    }
+    .doctor-format-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.75rem;
+    }
+    .doctor-format-tag {
+        padding: 0.3rem 0.45rem;
+        border-radius: 7px;
+        color: #475569;
+        background: #f8fafc;
+        font-size: 0.66rem;
+        font-weight: 700;
+    }
+    .doctor-directory-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        padding-top: 0.75rem;
+        border-top: 1px solid #f1f5f9;
+    }
+    .doctor-starting-price {
+        color: #0f172a;
+        font-size: 0.76rem;
+        font-weight: 800;
+    }
+    .doctor-book-btn {
+        border: 0;
+        border-radius: 11px;
+        padding: 0.5rem 0.75rem;
+        color: #fff;
+        background: #0ea5e9;
+        font-size: 0.72rem;
+        font-weight: 800;
+    }
+    .doctor-book-btn:hover {
+        color: #fff;
+        background: #0284c7;
+    }
+    .patient-metric-grid .stat-card {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        min-height: 92px;
+        padding: 1rem;
+        border-radius: 18px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .stat-card-icon {
+        display: grid;
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+        place-items: center;
+        border-radius: 13px;
+        font-size: 1rem;
+    }
+    .stat-card-icon.blue { color: #2563eb; background: #dbeafe; }
+    .stat-card-icon.emerald { color: #059669; background: #d1fae5; }
+    .stat-card-icon.rose { color: #e11d48; background: #ffe4e6; }
+    .stat-card-icon.indigo { color: #4f46e5; background: #e0e7ff; }
+    .next-appointment-card {
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb 0%, #4338ca 100%);
+        border: 0;
+        border-radius: 20px;
+        box-shadow: 0 16px 32px rgba(37, 99, 235, 0.18);
+    }
+    .next-appointment-card .text-muted,
+    .next-appointment-card .fw-semibold,
+    .next-appointment-card .fw-bold { color: #fff !important; }
+    .next-appointment-card .btn-outline-primary,
+    .next-appointment-card .btn-outline-danger {
+        border: 0;
+        color: #1d4ed8;
+        background: #fff;
+    }
+    .upcoming-empty-card {
+        position: relative;
+        overflow: hidden;
+        color: #fff;
+        background: linear-gradient(135deg, #2563eb 0%, #4338ca 100%);
+        border: 0;
+        border-radius: 20px;
+        box-shadow: 0 16px 32px rgba(37, 99, 235, 0.18);
+    }
+    .upcoming-empty-card h5,
+    .upcoming-empty-card p { color: #fff !important; }
+    .upcoming-empty-card .empty-state-icon {
+        color: #dbeafe;
+        background: rgba(255, 255, 255, 0.16);
+    }
+    .upcoming-empty-card .patient-btn {
+        color: #1d4ed8;
+        background: #fff;
+        box-shadow: none;
+    }
+    .appointment-table-card {
+        overflow: hidden;
+        padding: 1rem;
+    }
+    .appointment-table-card table { margin: 0; }
+    .appointment-table-card thead th {
+        padding: 0.4rem 0.25rem 0.65rem;
+        color: var(--patient-muted);
+        border: 0;
+        font-size: 0.68rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+    .appointment-table-card tbody td {
+        padding: 0.75rem 0.25rem;
+        color: var(--patient-text);
+        border-color: var(--patient-border);
+    }
+    .appointment-doctor-cell {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        color: var(--patient-heading);
+        font-weight: 700;
+    }
+    .appointment-doctor-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        background: #dbeafe;
+    }
+    .appointment-summary-btn {
+        border: 1px solid var(--patient-border);
+        border-radius: 9px;
+        padding: 0.35rem 0.55rem;
+        color: var(--patient-muted);
+        background: transparent;
+        font-size: 0.68rem;
+        font-weight: 700;
+    }
+    .widget-card {
+        padding: 1rem;
+        border: 1px solid var(--patient-border);
+        border-radius: 18px;
+        background: var(--patient-panel);
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
+    }
+    .widget-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.85rem;
+    }
+    .widget-card-header h5 { margin: 0; color: var(--patient-heading); font-weight: 800; }
+    .widget-count {
+        padding: 0.25rem 0.5rem;
+        border-radius: 999px;
+        color: #2563eb;
+        background: #dbeafe;
+        font-size: 0.68rem;
+        font-weight: 800;
+    }
+    .prescription-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.65rem;
+        padding: 0.65rem 0;
+        border-bottom: 1px solid var(--patient-border);
+    }
+    .prescription-item:last-child { border-bottom: 0; padding-bottom: 0; }
+    .prescription-name { color: var(--patient-heading); font-size: 0.78rem; font-weight: 800; }
+    .prescription-dose { margin-top: 0.12rem; color: var(--patient-muted); font-size: 0.68rem; }
+    .prescription-days { color: #059669; background: #d1fae5; border-radius: 999px; padding: 0.25rem 0.45rem; font-size: 0.63rem; font-weight: 800; white-space: nowrap; }
+    .health-tip-card {
+        padding: 1rem;
+        border: 1px solid #ccfbf1;
+        border-radius: 18px;
+        color: #134e4a;
+        background: linear-gradient(135deg, #ecfdf5 0%, #ccfbf1 100%);
+    }
+    .health-tip-card h5 { margin: 0; color: #115e59; font-weight: 800; }
+    .health-tip-card p { margin: 0.55rem 0 0; color: #0f766e; font-size: 0.76rem; line-height: 1.55; }
+    body[data-theme="dark"] .health-tip-card { border-color: rgba(45, 212, 191, 0.2); background: linear-gradient(135deg, rgba(6, 78, 59, 0.45), rgba(19, 78, 74, 0.45)); }
+    body[data-theme="dark"] .health-tip-card h5,
+    body[data-theme="dark"] .health-tip-card p { color: #99f6e4; }
+    body[data-theme="dark"] .stat-card-icon.blue { color: #93c5fd; background: rgba(59, 130, 246, 0.18); }
+    body[data-theme="dark"] .stat-card-icon.emerald { color: #6ee7b7; background: rgba(16, 185, 129, 0.18); }
+    body[data-theme="dark"] .stat-card-icon.rose { color: #fda4af; background: rgba(244, 63, 94, 0.18); }
+    body[data-theme="dark"] .stat-card-icon.indigo { color: #a5b4fc; background: rgba(99, 102, 241, 0.18); }
+    @media (max-width: 1199px) {
+        .doctor-directory-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 767px) {
+        .doctor-directory-header { align-items: stretch; flex-direction: column; }
+        .doctor-search { max-width: none; }
+        .doctor-directory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 480px) {
+        .doctor-directory-grid { grid-template-columns: 1fr; }
+    }
     .doctor-card-clickable:hover {
         transform: translateY(-2px);
         box-shadow: 0 16px 28px rgba(15, 23, 42, 0.08);
@@ -271,6 +741,29 @@
     .modal-backdrop.show {
         backdrop-filter: blur(6px);
         -webkit-backdrop-filter: blur(6px);
+    }
+    .patient-dashboard-page ~ .modal .modal-content {
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.14) !important;
+        border-radius: 24px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2) !important;
+    }
+    .patient-dashboard-page ~ .modal .modal-header,
+    .patient-dashboard-page ~ .modal .modal-body {
+        background: #fff;
+    }
+    .patient-dashboard-page ~ .modal .modal-title {
+        color: #0f172a;
+        font-size: 1.2rem;
+    }
+    .patient-dashboard-page ~ .modal .modal-body p {
+        color: #475569;
+        font-size: 0.9rem;
+        line-height: 1.65;
+    }
+    .patient-dashboard-page ~ .modal .badge {
+        border-radius: 999px;
+        padding: 0.4rem 0.65rem;
     }
     .doctor-avatar {
         width: 48px;
@@ -329,6 +822,27 @@
             padding: 1rem;
         }
     }
+    @media (min-width: 992px) {
+        .patient-shell.sidebar-collapsed .patient-sidebar { width: 76px; padding-right: 0.55rem; padding-left: 0.55rem; }
+        .patient-shell.sidebar-collapsed .patient-main { margin-left: 76px; }
+        .patient-shell.sidebar-collapsed .patient-brand span,
+        .patient-shell.sidebar-collapsed .patient-user > div { display: none; }
+        .patient-shell.sidebar-collapsed .patient-brand,
+        .patient-shell.sidebar-collapsed .patient-sidebar-footer,
+        .patient-shell.sidebar-collapsed .patient-nav .nav-link { justify-content: center; }
+        .patient-shell.sidebar-collapsed .patient-nav .nav-link { gap: 0; overflow: hidden; font-size: 0; padding-right: 0.55rem; padding-left: 0.55rem; }
+        .patient-shell.sidebar-collapsed .patient-nav .nav-link i { margin: 0 !important; font-size: 1.1rem; }
+    }
+    .patient-sidebar .sidebar-collapse-control { margin-top: auto; }
+    .patient-sidebar .patient-sidebar-footer { margin-top: 0; }
+    @media (max-width: 991px) {
+        .patient-shell.sidebar-collapsed .patient-sidebar { position: static; display: flex; width: 100%; height: auto; min-height: 0; flex-direction: row; align-items: center; padding: 0.4rem 0.7rem; }
+        .patient-shell.sidebar-collapsed .patient-main { margin-left: 0; }
+        .patient-shell.sidebar-collapsed .patient-brand,
+        .patient-shell.sidebar-collapsed .patient-nav,
+        .patient-shell.sidebar-collapsed .patient-user { display: none; }
+        .patient-shell.sidebar-collapsed .patient-sidebar-footer { margin: 0 0 0 auto; padding: 0; border: 0; }
+    }
 </style>
 
 <div class="patient-dashboard-page">
@@ -352,10 +866,9 @@
                 <button class="nav-link" type="button" data-tab-target="#profile-tab">
                     <i class="bi bi-person me-2"></i> My Profile
                 </button>
-                <a class="nav-link" href="{% url 'messages_page' %}">
-                    <i class="bi bi-chat-dots me-2"></i> Messages
-                </a>
             </nav>
+
+            <div class="sidebar-collapse-control"><button class="portal-sidebar-toggle" type="button" data-sidebar-toggle aria-label="Collapse navigation" title="Collapse navigation" aria-expanded="true"><i class="bi bi-layout-sidebar-inset"></i></button></div>
 
             <div class="patient-sidebar-footer">
                 <div class="patient-user">
@@ -374,34 +887,42 @@
         </aside>
 
         <main class="patient-main">
-            <div class="patient-topbar">
-                <div class="patient-greeting">
-                    <h2>Hello, {{ request.user.first_name|default:request.user.username }}!</h2>
-                    <p class="subtle">Manage your health appointments easily.</p>
-                </div>
-                <button class="btn btn-primary patient-btn" type="button" data-tab-target="#doctors-tab">Book Appointment</button>
-            </div>
+            {% include 'partials/portal_header.html' %}
 
             <div class="tab-content">
                 <section id="home-tab" class="tab-pane fade show active" role="tabpanel">
                     <div class="patient-metric-grid mb-3">
                         <div class="stat-card">
-                            <div class="stat-label">Upcoming visits</div>
-                            <p class="stat-value">{{ upcoming_visits }}</p>
+                            <span class="stat-card-icon blue"><i class="bi bi-calendar2-week"></i></span>
+                            <div><div class="stat-label">Upcoming visits</div><p class="stat-value">{{ upcoming_visits }}</p></div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Completed visits</div>
-                            <p class="stat-value">{{ completed_visits }}</p>
+                            <span class="stat-card-icon emerald"><i class="bi bi-check2-circle"></i></span>
+                            <div><div class="stat-label">Completed visits</div><p class="stat-value">{{ completed_visits }}</p></div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Cancelled bookings</div>
-                            <p class="stat-value">{{ cancelled_visits }}</p>
+                            <span class="stat-card-icon rose"><i class="bi bi-calendar-x"></i></span>
+                            <div><div class="stat-label">Cancelled bookings</div><p class="stat-value">{{ cancelled_visits }}</p></div>
                         </div>
                         <div class="stat-card">
-                            <div class="stat-label">Next appointment</div>
-                            <p class="stat-value">{% if upcoming_appointment %}{{ upcoming_appointment.date|date:'M d' }}{% else %}—{% endif %}</p>
+                            <span class="stat-card-icon indigo"><i class="bi bi-clock-history"></i></span>
+                            <div><div class="stat-label">Next appointment</div><p class="stat-value">{% if upcoming_appointment %}{{ upcoming_appointment.date|date:'M d' }}{% else %}—{% endif %}</p></div>
                         </div>
                     </div>
+
+                    <section class="vitals-panel" aria-labelledby="vitals-title">
+                        <div class="vitals-heading">
+                            <div><h5 id="vitals-title">Vital information</h5><small class="text-muted">Keep your health profile up to date</small></div>
+                            <button class="vitals-edit" type="button" data-tab-target="#profile-tab"><i class="bi bi-pencil me-1"></i>Edit Vitals</button>
+                        </div>
+                        <div class="vitals-grid">
+                            <div class="vital-card"><span class="vital-icon"><i class="bi bi-rulers"></i></span><div><div class="vital-label">Height</div><div class="vital-value">{% if request.user.height_cm %}{{ request.user.height_cm }}{% else %}--{% endif %} <span class="vital-unit">cm</span></div></div></div>
+                            <div class="vital-card"><span class="vital-icon"><i class="bi bi-speedometer2"></i></span><div><div class="vital-label">Weight</div><div class="vital-value">{% if request.user.weight_lbs %}{{ request.user.weight_lbs }}{% else %}--{% endif %} <span class="vital-unit">lbs</span></div></div></div>
+                            <div class="vital-card"><span class="vital-icon"><i class="bi bi-heart-pulse"></i></span><div><div class="vital-label">Pulse</div><div class="vital-value">{% if request.user.pulse_bpm %}{{ request.user.pulse_bpm }}{% else %}--{% endif %} <span class="vital-unit">bpm</span></div></div></div>
+                            <div class="vital-card"><span class="vital-icon"><i class="bi bi-calculator"></i></span><div><div class="vital-label">BMI</div><div class="vital-value">{% if request.user.bmi %}{{ request.user.bmi }}{% else %}--{% endif %} <span class="vital-unit">kg/m²</span></div></div></div>
+                            <div class="vital-card"><span class="vital-icon"><i class="bi bi-thermometer-half"></i></span><div><div class="vital-label">Temperature</div><div class="vital-value">{% if request.user.temperature_c %}{{ request.user.temperature_c }}{% else %}--{% endif %} <span class="vital-unit">°C</span></div></div></div>
+                        </div>
+                    </section>
 
                     <div class="patient-bottom-grid mb-3">
                         <div>
@@ -425,11 +946,11 @@
                                     </div>
                                     <div class="d-flex gap-2 flex-wrap">
                                         <a class="btn btn-outline-primary" href="{% url 'reschedule_appointment' upcoming_appointment.id %}">Reschedule</a>
-                                        <a class="btn btn-outline-danger" href="{% url 'cancel_appointment' upcoming_appointment.id %}" onclick="return confirm('Cancel this appointment?')">Cancel</a>
+                                        <a class="btn btn-outline-danger" href="{% url 'cancel_appointment' upcoming_appointment.id %}" data-confirm data-confirm-type="danger" data-confirm-title="Cancel Appointment?" data-confirm-message="Are you sure you want to cancel this appointment?" data-confirm-text="Cancel Appointment">Cancel</a>
                                     </div>
                                 </div>
                             {% else %}
-                                <div class="empty-state-card d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
+                                <div class="empty-state-card upcoming-empty-card d-flex flex-column flex-md-row align-items-center justify-content-between gap-3">
                                     <div class="d-flex align-items-center gap-3">
                                         <div class="empty-state-icon"><i class="bi bi-calendar2-week"></i></div>
                                         <div>
@@ -441,7 +962,7 @@
                                 </div>
                             {% endif %}
 
-                            <div class="section-card mt-3">
+                            <div class="section-card appointment-table-card mt-3">
                                 <h5>Recent completed appointments</h5>
                                 <div class="table-responsive">
                                     <table class="table table-sm align-middle mb-0">
@@ -456,7 +977,10 @@
                                             {% for item in appointments|slice:':4' %}
                                                 {% if item.status == 'COMPLETED' %}
                                                 <tr>
-                                                    <td>{{ item.doctor.name }}</td>
+                                                    <td><div class="appointment-doctor-cell">
+                                                        {% if item.doctor.photo %}<img class="appointment-doctor-avatar" src="{{ item.doctor.photo.url }}" alt="{{ item.doctor.name }}">{% else %}<span class="appointment-doctor-avatar d-grid place-items-center">{{ item.doctor.name|slice:':1' }}</span>{% endif %}
+                                                        {{ item.doctor.name }}
+                                                    </div></td>
                                                     <td>{{ item.date }}</td>
                                                     <td><span class="status-badge bg-status-completed">Completed</span></td>
                                                 </tr>
@@ -492,50 +1016,81 @@
                                     <button class="btn btn-outline-secondary w-100" type="button" data-tab-target="#profile-tab">Manage profile</button>
                                 </div>
                             </div>
+                            <div class="widget-card mt-3">
+                                <div class="widget-card-header">
+                                    <h5><i class="bi bi-capsule me-2 text-primary"></i>Active prescriptions</h5>
+                                    <span class="widget-count">{{ active_prescriptions|length }} active</span>
+                                </div>
+                                {% for prescription in active_prescriptions %}
+                                    <div class="prescription-item">
+                                        <div><div class="prescription-name">{{ prescription.name }}</div><div class="prescription-dose">{{ prescription.dosage }}</div></div>
+                                        {% if prescription.days_left %}<span class="prescription-days">{{ prescription.days_left }} days</span>{% endif %}
+                                    </div>
+                                {% empty %}
+                                    <p class="text-muted small mb-0">No active prescriptions on file.</p>
+                                {% endfor %}
+                            </div>
+                            <div class="health-tip-card mt-3">
+                                <h5><i class="bi bi-droplet-half me-2"></i>Stay hydrated!</h5>
+                                <p>Keep water nearby and take regular sips throughout the day to support your energy and recovery.</p>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <section id="doctors-tab" class="tab-pane fade" role="tabpanel">
-                    <div class="row g-3">
-                        <div class="col-12 col-lg-4">
-                            <div class="section-card h-100">
-                                <h5>Find a Doctor</h5>
-                                <form method="get" class="row g-2">
-                                    {{ form.as_p }}
-                                    <div class="col-12">
-                                        <button type="submit" class="btn btn-primary w-100 patient-btn">Search</button>
-                                    </div>
-                                </form>
+                    <div class="section-card">
+                        <div class="doctor-directory-header">
+                            <div>
+                                <h5 class="mb-1">Find a Doctor</h5>
+                                <p class="text-muted small mb-0">Browse specialists and book a time that works for you.</p>
                             </div>
+                            <form method="get" class="doctor-search" role="search">
+                                <i class="bi bi-search" aria-hidden="true"></i>
+                                <input class="form-control" type="search" name="doctor_name" value="{{ request.GET.doctor_name }}" placeholder="Try 'Cardiologist' or 'Dr. Smith...'" aria-label="Search doctors">
+                            </form>
                         </div>
-                        <div class="col-12 col-lg-8">
-                            <div class="section-card h-100">
-                                <h5>Doctor directory</h5>
-                                <div class="row g-3">
-                                    {% for doctor in doctors %}
-                                    <div class="col-12 col-md-6">
-                                        <div class="doctor-card doctor-card-clickable" data-doctor-id="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-bio="{{ doctor.bio|default:'Experienced specialist devoted to patient care.'|escapejs }}" data-doctor-sex="{{ doctor.get_sex_display }}" style="cursor:pointer;">
-                                            <div class="doctor-avatar">{{ doctor.name|slice:':1' }}</div>
-                                            <div class="fw-bold fs-5">{{ doctor.name }}</div>
-                                            <div class="text-muted mb-2">{{ doctor.specialty }}</div>
-                                            <div class="small text-muted mb-3">{{ doctor.bio|default:'Experienced specialist devoted to patient care.' }}</div>
-                                            <div class="d-flex justify-content-between align-items-center gap-2">
-                                                <span class="badge bg-primary-subtle text-primary">Available today</span>
-                                                <div class="d-flex gap-2">
-                                                    <button type="button" class="btn btn-outline-primary btn-sm patient-btn-secondary" data-view-doctor="{{ doctor.id }}">View details</button>
-                                                    <button type="button" class="btn btn-primary btn-sm patient-btn" data-book-doctor="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}">
-                                                        <i class="bi bi-calendar2-check me-1"></i>Book
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {% empty %}
-                                    <div class="col-12 text-muted">No doctors match your filter.</div>
-                                    {% endfor %}
+                        <div class="doctor-filter-chips" aria-label="Doctor filters">
+                            <button class="doctor-filter-chip active" type="button" data-doctor-filter="all">All</button>
+                            <button class="doctor-filter-chip" type="button" data-doctor-filter="available">Available Today</button>
+                            <button class="doctor-filter-chip" type="button" data-doctor-filter="fee">Lowest Fee</button>
+                            <button class="doctor-filter-chip" type="button" data-doctor-filter="experience">Most Experienced</button>
+                            <button class="doctor-filter-chip" type="button" data-doctor-filter="rating">Top Rated</button>
+                        </div>
+                        <div class="doctor-directory-grid">
+                            {% for doctor in doctors %}
+                            <article class="doctor-directory-card doctor-card-clickable" data-doctor-id="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}" data-doctor-bio="{{ doctor.bio|default:'Experienced specialist devoted to patient care.'|escapejs }}" data-doctor-sex="{{ doctor.get_sex_display }}" data-doctor-search="{{ doctor.name|lower }} {{ doctor.specialty|lower }}" data-doctor-available="{{ doctor.available_today|yesno:'true,false' }}" data-doctor-fee="1000" data-doctor-experience="0" data-doctor-rating="0">
+                                <div class="doctor-photo-box">
+                                    {% if doctor.photo %}
+                                        <img src="{{ doctor.photo.url }}" alt="{{ doctor.name }}" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+                                        <div class="doctor-photo-fallback" hidden>{{ doctor.name|slice:':2'|upper }}</div>
+                                    {% else %}
+                                        <div class="doctor-photo-fallback">{{ doctor.name|slice:':2'|upper }}</div>
+                                    {% endif %}
+                                    <span class="doctor-photo-pill"><i class="bi bi-circle-fill me-1" style="font-size: 0.45rem;"></i>Today</span>
                                 </div>
-                            </div>
+                                <div class="doctor-directory-details">
+                                    <h6>{{ doctor.name }}</h6>
+                                    <div class="doctor-directory-specialty">{{ doctor.specialty }}</div>
+                                    <div class="doctor-directory-meta">
+                                        <span><i class="bi bi-briefcase me-1"></i>Verified specialist</span>
+                                        <span><i class="bi bi-star-fill text-warning me-1"></i>Rating coming soon</span>
+                                    </div>
+                                    <div class="doctor-format-tags">
+                                        <span class="doctor-format-tag"><i class="bi bi-globe2 me-1"></i>Online</span>
+                                        <span class="doctor-format-tag"><i class="bi bi-hospital me-1"></i>In-Person</span>
+                                    </div>
+                                    <div class="doctor-directory-footer">
+                                        <span class="doctor-starting-price">Starting at ₱1,000</span>
+                                        <button type="button" class="doctor-book-btn" data-book-doctor="{{ doctor.id }}" data-doctor-name="{{ doctor.name }}" data-doctor-specialty="{{ doctor.specialty }}">
+                                            <i class="bi bi-calendar2-check me-1"></i>Book Now
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                            {% empty %}
+                            <div class="text-muted">No doctors match your filter.</div>
+                            {% endfor %}
                         </div>
                     </div>
 
@@ -543,9 +1098,15 @@
 
                 <section id="appointments-tab" class="tab-pane fade" role="tabpanel">
                     <div class="section-card">
-                        <h5>My appointments</h5>
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-3">
+                            <h5 class="mb-0">My appointments</h5>
+                            <div class="btn-group" role="group" aria-label="Appointment list">
+                                <button type="button" class="btn btn-sm btn-primary" data-appointment-list="active">Active</button>
+                                <button type="button" class="btn btn-sm btn-outline-primary" data-appointment-list="archived">Archived</button>
+                            </div>
+                        </div>
                         <div class="table-responsive">
-                            <table class="table table-striped align-middle mb-0">
+                            <table class="table patient-appointments-table align-middle mb-0">
                                 <thead>
                                     <tr>
                                         <th>Doctor</th>
@@ -556,12 +1117,15 @@
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {% for appointment in appointments %}
-                                    <tr>
-                                        <td>{{ appointment.doctor.name }}</td>
+                                <tbody data-appointment-list-body="active">
+                                    {% for appointment in active_appointments %}
+                                    <tr class="patient-appointment-row" data-appointment-modal="dashboardAppointmentModal{{ appointment.id }}" role="button" tabindex="0" aria-label="View appointment with {{ appointment.doctor.name }}">
+                                        <td><div class="patient-appointment-doctor">
+                                            {% if appointment.doctor.photo %}<img class="patient-appointment-avatar" src="{{ appointment.doctor.photo.url }}" alt="{{ appointment.doctor.name }}">{% else %}<span class="patient-appointment-avatar">{{ appointment.doctor.name|slice:':2'|upper }}</span>{% endif %}
+                                            <span>{{ appointment.doctor.name }}<small>{{ appointment.doctor.specialty }}</small></span>
+                                        </div></td>
                                         <td>{{ appointment.doctor.specialty }}</td>
-                                        <td>{{ appointment.date }}</td>
+                                        <td>{{ appointment.date|date:'M d, Y' }}</td>
                                         <td>{{ appointment.time }}</td>
                                         <td>
                                             {% if appointment.status == 'PENDING' %}
@@ -576,20 +1140,21 @@
                                                 <span class="status-badge bg-status-no-show">{{ appointment.get_status_display }}</span>
                                             {% endif %}
                                         </td>
-                                        <td>
-                                            {% if appointment.status == 'COMPLETED' or appointment.status == 'CANCELLED' or appointment.status == 'NO_SHOW' %}
-                                                <span class="text-muted small">No actions</span>
-                                            {% else %}
-                                                <div class="d-flex gap-2">
-                                                    <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-sm btn-outline-primary">Reschedule</a>
-                                                    <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Cancel this appointment?')">Cancel</a>
-                                                </div>
-                                            {% endif %}
-                                        </td>
+                                        <td><span class="patient-appointment-hint"><i class="bi bi-arrow-up-right-circle me-1"></i>View details</span></td>
                                     </tr>
                                     {% empty %}
                                     <tr><td colspan="6" class="text-center text-muted">You have no appointments yet.</td></tr>
                                     {% endfor %}
+                                </tbody>
+                                <tbody data-appointment-list-body="archived" hidden>
+                                    {% for appointment in archived_appointments %}
+                                    <tr class="patient-appointment-row" data-appointment-modal="dashboardAppointmentModal{{ appointment.id }}" role="button" tabindex="0" aria-label="View archived appointment with {{ appointment.doctor.name }}">
+                                        <td><div class="patient-appointment-doctor">{% if appointment.doctor.photo %}<img class="patient-appointment-avatar" src="{{ appointment.doctor.photo.url }}" alt="{{ appointment.doctor.name }}">{% else %}<span class="patient-appointment-avatar">{{ appointment.doctor.name|slice:':2'|upper }}</span>{% endif %}<span>{{ appointment.doctor.name }}<small>{{ appointment.doctor.specialty }}</small></span></div></td>
+                                        <td>{{ appointment.doctor.specialty }}</td><td>{{ appointment.date|date:'M d, Y' }}</td><td>{{ appointment.time }}</td>
+                                        <td><span class="status-badge bg-status-completed">Archived</span></td>
+                                        <td><span class="patient-appointment-hint">View details</span></td>
+                                    </tr>
+                                    {% empty %}<tr><td colspan="6" class="text-center text-muted">No archived appointments.</td></tr>{% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -621,6 +1186,48 @@
         </main>
     </div>
 </div>
+
+{% for appointment in appointments %}
+<div class="modal fade consultation-detail-modal" id="dashboardAppointmentModal{{ appointment.id }}" tabindex="-1" aria-labelledby="dashboardAppointmentTitle{{ appointment.id }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 pb-2">
+                <h5 class="modal-title fw-bold" id="dashboardAppointmentTitle{{ appointment.id }}">Appointment details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 pt-2">
+                <div class="d-flex align-items-center gap-3 pb-3 border-bottom mb-4">
+                    {% if appointment.doctor.photo %}<img class="patient-appointment-avatar" style="width: 56px; height: 56px;" src="{{ appointment.doctor.photo.url }}" alt="{{ appointment.doctor.name }}">{% else %}<span class="patient-appointment-avatar" style="width: 56px; height: 56px;">{{ appointment.doctor.name|slice:':2'|upper }}</span>{% endif %}
+                    <div><div class="fw-bold fs-5">{{ appointment.doctor.name }}</div><div class="text-muted">{{ appointment.doctor.specialty }}</div></div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <span class="badge bg-primary-subtle text-primary">{{ appointment.date|date:'M d, Y' }}</span>
+                    <span class="badge bg-light text-dark">{{ appointment.time }}</span>
+                    <span class="badge bg-light text-dark">{{ appointment.get_status_display }}</span>
+                </div>
+                <div class="detail-block mb-3"><span class="detail-label">Reason for visit</span><div class="text-muted">{{ appointment.notes|default:'No reason provided.' }}</div></div>
+                <div class="detail-block mb-3"><span class="detail-label">Consultation Record &amp; Medical Summary</span><div class="text-muted">{{ appointment.medical_summary|default:'No medical summary recorded yet.' }}</div></div>
+                {% if appointment.medications_used %}
+                    <div class="detail-block mb-3"><span class="detail-label">Medication prescribed</span><ul class="list-group list-group-flush">{% for item in appointment.medications_used %}<li class="list-group-item px-0">{{ item.name }}{% if item.quantity %} <span class="text-muted">({{ item.quantity }} qty)</span>{% endif %}</li>{% endfor %}</ul></div>
+                {% endif %}
+                {% if appointment.patient_archived %}
+                <form method="post" action="{% url 'restore_appointment' appointment.id %}" class="d-flex justify-content-end mt-4" data-confirm-form data-confirm-type="success" data-confirm-title="Restore Appointment?" data-confirm-message="This appointment will return to your active appointment list." data-confirm-text="Restore Appointment">{% csrf_token %}<button class="btn btn-outline-primary" type="submit"><i class="bi bi-arrow-counterclockwise me-1"></i>Restore appointment</button></form>
+                {% else %}
+                <div class="d-flex justify-content-between align-items-center gap-2 mt-4">
+                    <form method="post" action="{% url 'archive_appointment' appointment.id %}" data-confirm-form data-confirm-type="warning" data-confirm-title="Archive Appointment?" data-confirm-message="This appointment will be hidden from your active list. You can restore it later from Archived appointments." data-confirm-text="Archive Appointment">{% csrf_token %}<button class="btn btn-outline-secondary" type="submit"><i class="bi bi-archive me-1"></i>Archive appointment</button></form>
+                {% if appointment.status != 'COMPLETED' and appointment.status != 'CANCELLED' and appointment.status != 'NO_SHOW' %}
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'reschedule_appointment' appointment.id %}" class="btn btn-outline-primary">Reschedule</a>
+                    <a href="{% url 'cancel_appointment' appointment.id %}" class="btn btn-outline-danger" data-confirm data-confirm-type="danger" data-confirm-title="Cancel Appointment?" data-confirm-message="Are you sure you want to cancel this appointment?" data-confirm-text="Cancel Appointment">Cancel</a>
+                </div>
+                {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
 
 <div class="modal fade" id="doctorDetailModal" tabindex="-1" aria-labelledby="doctorDetailModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -673,6 +1280,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <label class="form-label fw-semibold mb-0">Select a date</label>
                     </div>
+                    <div class="text-muted small mb-2"><i class="bi bi-info-circle me-1"></i>Choose a date first, then select an available time below.</div>
                     <div id="dateSelector" class="d-flex flex-wrap gap-2"></div>
                 </div>
 
@@ -690,8 +1298,19 @@
                     <input type="hidden" name="time" id="modalSelectedTime">
 
                     <div class="mb-3">
-                        <label for="bookingNotes" class="form-label fw-semibold">Reason for visit (Optional)</label>
-                        <textarea id="bookingNotes" name="notes" class="form-control" rows="4" placeholder="e.g., Routine checkup, skin rash consultation..."></textarea>
+                        <label for="bookingVisitType" class="form-label fw-semibold">Primary visit type</label>
+                        <select id="bookingVisitType" name="visit_type" class="form-select">
+                            <option value="">Select a visit type</option>
+                            <option value="General Consultation">General Consultation</option>
+                            <option value="Follow-up Visit">Follow-up Visit</option>
+                            <option value="Acute Symptoms / Fever">Acute Symptoms / Fever</option>
+                            <option value="Routine Examination">Routine Examination</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="bookingNotes" class="form-label fw-semibold">Reason for visit <span class="text-danger">*</span></label>
+                        <textarea id="bookingNotes" name="notes" class="form-control" rows="4" placeholder="e.g., Routine checkup, skin rash consultation..." required></textarea>
                     </div>
 
                     <div class="d-flex justify-content-end mt-3">
@@ -715,16 +1334,14 @@
                 panel.classList.remove('active', 'show');
                 panel.style.display = 'none';
             });
-
             navButtons.forEach(function (button) {
                 button.classList.remove('active');
             });
 
-            const targetPanel = document.getElementById(targetId.replace('#', ''));
-            if (targetPanel) {
-                targetPanel.classList.add('active', 'show');
-                targetPanel.style.display = 'block';
-            }
+            const targetPanel = document.querySelector(targetId);
+            if (!targetPanel) return;
+            targetPanel.classList.add('active', 'show');
+            targetPanel.style.display = 'block';
 
             const targetNav = document.querySelector('[data-tab-target="' + targetId + '"]');
             if (targetNav) {
@@ -738,6 +1355,36 @@
                 if (targetId) {
                     activatePatientTab(targetId);
                 }
+            });
+        });
+
+        document.querySelectorAll('[data-appointment-modal]').forEach(function (row) {
+            function openAppointmentDetails() {
+                const modalElement = document.getElementById(row.dataset.appointmentModal);
+                if (modalElement) bootstrap.Modal.getOrCreateInstance(modalElement).show();
+            }
+            row.addEventListener('click', function (event) {
+                if (!event.target.closest('a, button')) openAppointmentDetails();
+            });
+            row.addEventListener('keydown', function (event) {
+                if ((event.key === 'Enter' || event.key === ' ') && !event.target.closest('a, button')) {
+                    event.preventDefault();
+                    openAppointmentDetails();
+                }
+            });
+        });
+
+        document.querySelectorAll('[data-appointment-list]').forEach(function (button) {
+            button.addEventListener('click', function () {
+                const selectedList = this.dataset.appointmentList;
+                document.querySelectorAll('[data-appointment-list-body]').forEach(function (body) {
+                    body.hidden = body.dataset.appointmentListBody !== selectedList;
+                });
+                document.querySelectorAll('[data-appointment-list]').forEach(function (tabButton) {
+                    const active = tabButton === button;
+                    tabButton.classList.toggle('btn-primary', active);
+                    tabButton.classList.toggle('btn-outline-primary', !active);
+                });
             });
         });
 
@@ -879,7 +1526,9 @@
 
             slots.forEach(function (value) {
                 const [hour, minute] = value.split(':').map(Number);
-                const slotItem = { value: value, label: value };
+                const period = hour >= 12 ? 'PM' : 'AM';
+                const displayHour = hour % 12 || 12;
+                const slotItem = { value: value, label: displayHour + ':' + String(minute).padStart(2, '0') + ' ' + period };
                 if (hour < 12) {
                     morning.push(slotItem);
                 } else {
@@ -910,6 +1559,7 @@
                     const button = document.createElement('button');
                     button.type = 'button';
                     button.className = 'btn btn-sm btn-outline-primary slot-pill';
+                    button.setAttribute('aria-pressed', 'false');
                     button.textContent = slot.label;
                     button.dataset.time = slot.value;
                     button.addEventListener('click', function () {
@@ -917,9 +1567,13 @@
                         allPills.forEach(function (pill) {
                             pill.classList.remove('btn-primary');
                             pill.classList.add('btn-outline-primary');
+                            pill.classList.remove('selected');
+                            pill.setAttribute('aria-pressed', 'false');
                         });
                         this.classList.remove('btn-outline-primary');
                         this.classList.add('btn-primary');
+                        this.classList.add('selected');
+                        this.setAttribute('aria-pressed', 'true');
                         activeSlot = slot.value;
                         modalSelectedTime.value = slot.value;
                         bookSlotButton.disabled = false;
@@ -969,6 +1623,47 @@
                 );
             });
         });
+
+        const doctorGrid = document.querySelector('.doctor-directory-grid');
+        const doctorSearch = document.querySelector('.doctor-search input');
+        const doctorFilters = document.querySelectorAll('[data-doctor-filter]');
+        const doctorCards = Array.from(document.querySelectorAll('.doctor-directory-card'));
+
+        function applyDoctorFilter(filterName) {
+            const query = (doctorSearch ? doctorSearch.value : '').trim().toLowerCase();
+            let filteredCards = doctorCards.filter(function (card) {
+                const matchesSearch = (card.dataset.doctorSearch || '').includes(query);
+                const matchesAvailability = filterName !== 'available' || card.dataset.doctorAvailable === 'true';
+                return matchesSearch && matchesAvailability;
+            });
+
+            if (filterName === 'fee') {
+                filteredCards.sort((a, b) => Number(a.dataset.doctorFee) - Number(b.dataset.doctorFee));
+            } else if (filterName === 'experience' || filterName === 'rating') {
+                filteredCards.sort((a, b) => Number(b.dataset['doctor' + filterName.charAt(0).toUpperCase() + filterName.slice(1)]) - Number(a.dataset['doctor' + filterName.charAt(0).toUpperCase() + filterName.slice(1)]));
+            }
+
+            doctorCards.forEach(function (card) {
+                card.hidden = !filteredCards.includes(card);
+            });
+            filteredCards.forEach(function (card) {
+                if (doctorGrid) doctorGrid.appendChild(card);
+            });
+        }
+
+        doctorFilters.forEach(function (filterButton) {
+            filterButton.addEventListener('click', function () {
+                doctorFilters.forEach(function (button) { button.classList.remove('active'); });
+                this.classList.add('active');
+                applyDoctorFilter(this.dataset.doctorFilter);
+            });
+        });
+        if (doctorSearch) {
+            doctorSearch.addEventListener('input', function () {
+                const activeFilter = document.querySelector('[data-doctor-filter].active');
+                applyDoctorFilter(activeFilter ? activeFilter.dataset.doctorFilter : 'all');
+            });
+        }
 
         bookingForm.addEventListener('submit', function () {
             const label = bookSlotButton.querySelector('.button-label');

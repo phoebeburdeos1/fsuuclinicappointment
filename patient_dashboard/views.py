@@ -6,9 +6,10 @@ from django.db import transaction
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
 from accounts.decorators import patient_required
-from accounts.models import User
+from accounts.models import Message, User, UserRole
 from admin_dashboard.models import Appointment, BlockedSlot, Doctor, DoctorSchedule
 from patient_dashboard.forms import BookingForm, SearchDoctorsForm
 
@@ -16,7 +17,10 @@ from patient_dashboard.forms import BookingForm, SearchDoctorsForm
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'phone', 'address', 'photo']
+        fields = [
+            'first_name', 'last_name', 'email', 'phone', 'address', 'photo',
+            'height_cm', 'weight_lbs', 'pulse_bpm', 'bmi', 'temperature_c',
+        ]
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -24,6 +28,11 @@ class ProfileForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'height_cm': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'e.g. 169'}),
+            'weight_lbs': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'e.g. 140'}),
+            'pulse_bpm': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 72'}),
+            'bmi': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'e.g. 22.4'}),
+            'temperature_c': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'placeholder': 'e.g. 36.5'}),
         }
 
 
@@ -56,6 +65,11 @@ def patient_dashboard(request):
     form = SearchDoctorsForm(request.GET or None)
     doctors = [doctor for doctor in Doctor.objects.filter(is_archived=False).order_by('name') if doctor.is_publicly_visible()]
     appointments = Appointment.objects.filter(patient=request.user).select_related('doctor').order_by('date', 'time')
+    today = timezone.localdate()
+    current_time = timezone.localtime().time().replace(tzinfo=None)
+    for doctor in doctors:
+        today_slots = generate_available_slots(doctor, today)
+        doctor.available_today = any(slot > current_time for slot in today_slots)
 
     specialty = request.GET.get('specialty') or ''
     doctor_name = request.GET.get('doctor_name') or ''
@@ -79,6 +93,24 @@ def patient_dashboard(request):
     upcoming_appointment = active_future.order_by('date', 'time').first()
     completed_visits = appointments.filter(status=Appointment.Status.COMPLETED).count()
     cancelled_visits = appointments.filter(status=Appointment.Status.CANCELLED).count()
+    active_prescriptions = []
+    active_appointments = appointments.filter(
+        status__in=[Appointment.Status.PENDING, Appointment.Status.CONFIRMED, Appointment.Status.CHECKED_IN],
+    )
+    for appointment in active_appointments:
+        for medication in appointment.medications_used or []:
+            if isinstance(medication, dict):
+                active_prescriptions.append({
+                    'name': medication.get('name', 'Medication'),
+                    'dosage': medication.get('dosage', 'Follow clinician instructions'),
+                    'days_left': medication.get('days_left'),
+                })
+            else:
+                active_prescriptions.append({
+                    'name': str(medication),
+                    'dosage': 'Follow clinician instructions',
+                    'days_left': None,
+                })
 
     return render(
         request,
@@ -88,6 +120,8 @@ def patient_dashboard(request):
             'profile_form': ProfileForm(instance=request.user),
             'doctors': doctors,
             'appointments': appointments,
+            'active_appointments': appointments.filter(patient_archived=False),
+            'archived_appointments': appointments.filter(patient_archived=True),
             'selected_doctor': selected_doctor,
             'selected_date': selected_date,
             'available_slots': available_slots,
@@ -95,14 +129,41 @@ def patient_dashboard(request):
             'upcoming_visits': active_future.count(),
             'completed_visits': completed_visits,
             'cancelled_visits': cancelled_visits,
+            'active_prescriptions': active_prescriptions[:4],
         },
     )
 
 
 @patient_required
 def my_appointments(request):
-    appointments = Appointment.objects.filter(patient=request.user).select_related('doctor')
-    return render(request, 'patient_dashboard/my_appointments.html', {'appointments': appointments})
+    patient_appointments = Appointment.objects.filter(patient=request.user).select_related('doctor')
+    appointments = patient_appointments.filter(patient_archived=False)
+    archived_appointments = patient_appointments.filter(patient_archived=True)
+    return render(request, 'patient_dashboard/my_appointments.html', {
+        'appointments': appointments,
+        'archived_appointments': archived_appointments,
+        'all_appointments': patient_appointments,
+    })
+
+
+@patient_required
+def archive_appointment(request, pk):
+    if request.method == 'POST':
+        appointment = get_object_or_404(Appointment, pk=pk, patient=request.user)
+        appointment.patient_archived = True
+        appointment.save(update_fields=['patient_archived', 'updated_at'])
+        messages.success(request, 'Appointment moved to your archive.')
+    return redirect('my_appointments')
+
+
+@patient_required
+def restore_appointment(request, pk):
+    if request.method == 'POST':
+        appointment = get_object_or_404(Appointment, pk=pk, patient=request.user)
+        appointment.patient_archived = False
+        appointment.save(update_fields=['patient_archived', 'updated_at'])
+        messages.success(request, 'Appointment restored to your list.')
+    return redirect('my_appointments')
 
 
 @patient_required
@@ -137,7 +198,12 @@ def book_appointment(request):
     doctor_id = request.POST.get('doctor')
     selected_date = request.POST.get('date')
     selected_time = request.POST.get('time')
-    notes = request.POST.get('notes', '')
+    notes = (request.POST.get('notes') or '').strip()
+    visit_type = (request.POST.get('visit_type') or '').strip()
+
+    if not notes:
+        messages.error(request, 'Please provide a reason for your visit.')
+        return redirect('patient_dashboard')
 
     if not all([doctor_id, selected_date, selected_time]):
         messages.error(request, 'Please choose a doctor, date, and time.')
@@ -145,6 +211,9 @@ def book_appointment(request):
 
     target_date = date.fromisoformat(selected_date)
     target_time = datetime.strptime(selected_time, '%H:%M').time()
+    formatted_notes = notes
+    if visit_type:
+        formatted_notes = f'{visit_type}: {notes}'
 
     with transaction.atomic():
         doctor = Doctor.objects.select_for_update().get(pk=doctor_id)
@@ -158,10 +227,17 @@ def book_appointment(request):
             date=target_date,
             time=target_time,
             status=Appointment.Status.PENDING,
-            notes=notes,
+            notes=formatted_notes,
         )
-        appointment.status = Appointment.Status.CONFIRMED
-        appointment.save(update_fields=['status'])
+
+        for recipient in User.objects.filter(role__in=[UserRole.ADMIN, UserRole.STAFF], is_active=True):
+            Message.objects.create(
+                sender=request.user,
+                recipient=recipient,
+                appointment=appointment,
+                subject='New appointment booked',
+                body=f'{request.user.get_full_name() or request.user.username} booked {doctor.name} on {target_date:%b %d, %Y} at {target_time:%I:%M %p}.',
+            )
 
     messages.success(request, 'Appointment booked successfully.')
     return redirect('my_appointments')
